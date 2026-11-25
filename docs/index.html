@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Every Texan FAFSA Completion Tracker</title>
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif; color: #1a1a1a; background: #ececec; }
+    header { background: #fff; padding: 14px 16px; border-bottom: 1px solid #ddd; }
+    h1 { margin: 0; font-size: 30px; font-weight: 400; }
+    h2 { margin: 0 0 8px; font-size: 18px; font-weight: 500; }
+    .wrap { display: grid; grid-template-columns: 340px 1fr; gap: 10px; padding: 10px 0 10px 0; }
+    aside { background: #fff; align-self: start; }
+    .filter { display: block; padding: 12px 10px; border-bottom: 1px solid #ddd; }
+    .filter span { display: block; font-size: 16px; }
+    .filter select { width: 100%; margin-top: 4px; border: 0; padding: 2px 0; font: inherit; font-size: 14px; color: #555; background: transparent; cursor: pointer; }
+    main { display: grid; gap: 10px; min-width: 0; padding-right: 10px; }
+    .card { background: #fff; padding: 10px; min-width: 0; }
+    #mapCard { padding: 0; }
+    #mapCard h2 { padding: 12px 10px 6px; margin: 0; }
+    #map { height: 420px; }
+    .link { padding: 10px; font-weight: 600; font-size: 18px; }
+    .link a { color: #0b63ce; text-decoration: none; }
+    .legend { position: absolute; top: 10px; right: 10px; background: #fff; padding: 8px 10px; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.2); z-index: 2; }
+    .legend b { display: block; margin-bottom: 4px; }
+    .legend i { display: inline-block; width: 14px; height: 12px; margin-right: 6px; vertical-align: -2px; border: 1px solid #bbb; }
+    .lower { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: 200px 200px auto; gap: 10px; }
+    .kpi { display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; font-size: 19px; }
+    .kpi .big { font-size: 78px; font-weight: 600; line-height: 1; }
+    #kpiLow .big { color: #b3261e; }
+    .chart svg { width: 100%; display: block; }
+    .chart text { font-size: 11px; fill: #444; }
+    .key { font-size: 12px; color: #444; }
+    .key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; }
+    #tableCard { grid-column: 3; grid-row: 1 / 4; display: flex; flex-direction: column; }
+    .scroll { overflow: auto; flex: 1; max-height: 560px; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th { position: sticky; top: 0; background: #fff; font-weight: 600; padding: 10px 8px; border-bottom: 3px solid #ddd; text-align: left; }
+    td { padding: 10px 8px; border-bottom: 1px solid #e6e6e6; }
+    td:nth-child(n+3), th:nth-child(n+3) { text-align: right; }
+    td.low { color: #b3261e; }
+    .note { grid-column: 1 / 3; font-size: 11px; font-weight: 600; line-height: 1.7; }
+    #tip { position: fixed; pointer-events: none; background: #fff; border: 1px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,.2); padding: 6px 9px; font-size: 13px; line-height: 1.45; display: none; z-index: 10; max-width: 280px; }
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; padding: 10px; }
+      main { padding: 0; }
+      .lower { grid-template-columns: 1fr; grid-template-rows: none; }
+      #tableCard, .note { grid-column: auto; grid-row: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header><h1>Every Texan FAFSA Completion Tracker</h1></header>
+  <div class="wrap">
+    <aside>
+      <label class="filter"><span>County Name</span><select id="county"><option value="">No category selected</option></select></label>
+      <label class="filter"><span>School Year</span><select id="year"></select></label>
+    </aside>
+    <main>
+      <section class="card" id="mapCard">
+        <h2>FAFSA Completion &amp; Snapshot Data</h2>
+        <div style="position:relative"><div id="map"></div><div class="legend" id="legend"></div></div>
+        <div class="link">Explore the full map here: <a href="https://arcg.is/001z0P" target="_blank" rel="noopener">https://arcg.is/001z0P</a></div>
+      </section>
+      <div class="lower">
+        <div class="card kpi" id="kpiRate"><div id="kpiOf"></div><div class="big" id="kpiPct"></div><div id="kpiWhere"></div></div>
+        <div class="card chart"><h2>FAFSA Completion by School Year</h2><div class="key" id="yearKey"></div><div id="yearChart"></div></div>
+        <div class="card" id="tableCard">
+          <h2>Lowest Completion Rates (districts with 30+ graduates)</h2>
+          <div class="scroll"><table><thead><tr><th>District Name</th><th>County</th><th>FAFSA Completion Rate</th><th>Total Graduates</th></tr></thead><tbody id="tbody"></tbody></table></div>
+        </div>
+        <div class="card kpi" id="kpiLow"><div></div><div class="big" id="lowCount"></div><div>districts below 50% completion</div></div>
+        <div class="card chart"><h2 id="typeTitle"></h2><div id="typeChart"></div></div>
+        <div class="card note">Source: Texas Education Agency FAFSA completion reports (2022–23 through 2024–25) and Texas Academic Performance Reports. District counts under 10 are suppressed by TEA and shown as no data. Charter districts appear in charts and tables but not on the map, as they have no attendance boundaries. Updated July 2026. Contact: <a href="mailto:data@everytexan.org">data@everytexan.org</a></div>
+      </div>
+    </main>
+  </div>
+  <div id="tip"></div>
+  <script>
+    const COLORS = ['#eee2cf', '#dbd0b9', '#74a2b3', '#3b758c'];
+    const NODATA = '#d9d9d9';
+    const SECTOR_COLORS = { 'Traditional ISD': '#86b04a', 'Charter': '#4e6b1a' };
+    const fmt = n => n == null ? '—' : Math.round(n).toLocaleString('en-US');
+    const pct = r => r == null ? '—' : (r * 100).toFixed(1) + '%';
+    const short = y => y.slice(0, 4) + '–' + y.slice(-2);
+    const sum = (a, k) => a.reduce((s, r) => s + (r[k] || 0), 0);
+    const tip = document.getElementById('tip');
+    const showTip = (e, html) => { tip.innerHTML = html; tip.style.display = 'block'; tip.style.left = Math.min(e.clientX + 14, innerWidth - 290) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; };
+    const hideTip = () => { tip.style.display = 'none'; };
+    const countyEl = document.getElementById('county'), yearEl = document.getElementById('year');
+    let rows = [], years = [], bounds = {}, map;
+
+    document.getElementById('legend').innerHTML = '<b>FAFSA completion rate</b>' +
+      ['0 – 25%', '> 25 – 50%', '> 50 – 75%', '> 75%'].map((l, i) => `<div><i style="background:${COLORS[i]}"></i>${l}</div>`).join('') +
+      `<div><i style="background:${NODATA}"></i>No data</div>`;
+
+    Promise.all([fetch('data/fafsa.json').then(r => r.json()), fetch('data/districts.geojson').then(r => r.json())]).then(([data, geo]) => {
+      rows = data;
+      years = [...new Set(rows.map(r => r.year))].sort();
+      yearEl.innerHTML = years.map(y => `<option>${y}</option>`).join('');
+      yearEl.value = years[years.length - 1];
+      [...new Set(rows.map(r => r.county).filter(Boolean))].sort().forEach(c => countyEl.add(new Option(c, c)));
+      geo.features.forEach(f => {
+        const b = bounds[f.properties.county] ||= [180, 90, -180, -90];
+        JSON.stringify(f.geometry.coordinates).match(/-?\d+\.?\d*,-?\d+\.?\d*/g).forEach(p => {
+          const [x, y] = p.split(',').map(Number);
+          b[0] = Math.min(b[0], x); b[1] = Math.min(b[1], y); b[2] = Math.max(b[2], x); b[3] = Math.max(b[3], y);
+        });
+      });
+      initMap(geo);
+      countyEl.onchange = yearEl.onchange = render;
+      addEventListener('resize', render);
+      render();
+    });
+
+    function initMap(geo) {
+      map = new maplibregl.Map({ container: 'map', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', bounds: [-106.7, 25.8, -93.5, 36.5], fitBoundsOptions: { padding: 20 }, attributionControl: { compact: true } });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
+      map.on('load', () => {
+        map.addSource('d', { type: 'geojson', data: geo, promoteId: 'id' });
+        map.addLayer({ id: 'fill', type: 'fill', source: 'd', paint: { 'fill-color': fillColor(), 'fill-opacity': 0.9 } });
+        map.addLayer({ id: 'line', type: 'line', source: 'd', paint: { 'line-color': '#fff', 'line-width': 0.4 } });
+        map.addLayer({ id: 'sel', type: 'line', source: 'd', filter: ['==', ['get', 'county'], ''], paint: { 'line-color': '#1a1a1a', 'line-width': 1.5 } });
+        map.addLayer({ id: 'hover', type: 'line', source: 'd', filter: ['==', ['get', 'id'], -1], paint: { 'line-color': '#1a1a1a', 'line-width': 2.5 } });
+        map.on('mousemove', 'fill', e => {
+          const p = e.features[0].properties, y = yearEl.value;
+          map.getCanvas().style.cursor = 'pointer';
+          map.setFilter('hover', ['==', ['get', 'id'], p.id]);
+          showTip(e.originalEvent, `<b>${p.name}</b><br>${p.county} County · ${p.type || ''}<br>FAFSA completion, ${short(y)}: <b>${pct(p['rate_' + y])}</b><br>${fmt(p['completed_' + y])} of ${fmt(p['grads_' + y])} graduates` +
+            `<br>Students: ${fmt(p.students)}<br>Economically disadvantaged: ${p.econ == null ? '—' : p.econ + '%'}<br>4-yr graduation rate (2022): ${p.grad4 == null ? '—' : p.grad4 + '%'}`);
+        });
+        map.on('mouseleave', 'fill', () => { map.getCanvas().style.cursor = ''; map.setFilter('hover', ['==', ['get', 'id'], -1]); hideTip(); });
+        render();
+      });
+    }
+
+    function fillColor() {
+      const k = ['get', 'rate_' + yearEl.value];
+      return ['case', ['==', k, null], NODATA, ['step', k, COLORS[0], 0.25, COLORS[1], 0.5, COLORS[2], 0.75, COLORS[3]]];
+    }
+
+    function render() {
+      const county = countyEl.value, year = yearEl.value;
+      const sel = rows.filter(r => !county || r.county === county);
+      const yr = sel.filter(r => r.year === year);
+      const c = sum(yr, 'completed'), g = sum(yr, 'grads');
+      document.getElementById('kpiOf').textContent = `${fmt(c)} of ${fmt(g)} graduates`;
+      document.getElementById('kpiPct').textContent = g ? pct(c / g) : '—';
+      document.getElementById('kpiWhere').textContent = 'completed a FAFSA ' + (county ? `in ${county} County` : 'statewide');
+      document.getElementById('lowCount').textContent = yr.filter(r => r.rate != null && r.rate < 0.5 && r.completed > 0).length;
+      yearChart(sel);
+      typeChart(yr, year);
+      document.getElementById('tbody').innerHTML = yr.filter(r => r.grads >= 30 && r.rate != null && r.completed > 0)
+        .sort((a, b) => a.rate - b.rate).slice(0, 25)
+        .map(r => `<tr><td>${r.name}</td><td>${r.county}</td><td class="${r.rate < 0.4 ? 'low' : ''}">${pct(r.rate)}</td><td>${fmt(r.grads)}</td></tr>`).join('')
+        || '<tr><td colspan="4">No districts match.</td></tr>';
+      if (map && map.getLayer('fill')) {
+        map.setPaintProperty('fill', 'fill-color', fillColor());
+        map.setFilter('sel', ['==', ['get', 'county'], county]);
+        if (county && bounds[county]) map.fitBounds(bounds[county], { padding: 40, maxZoom: 10 });
+        else if (!county && render.last) map.fitBounds([-106.7, 25.8, -93.5, 36.5], { padding: 20 });
+        render.last = county;
+      }
+    }
+
+    function bindTips(el) {
+      el.querySelectorAll('[data-tip]').forEach(n => { n.onmousemove = e => showTip(e, n.dataset.tip); n.onmouseleave = hideTip; });
+    }
+
+    function yearChart(sel) {
+      const el = document.getElementById('yearChart'), W = el.clientWidth, H = 130, L = 44, B = 22, T = 8;
+      const sectors = Object.keys(SECTOR_COLORS).filter(s => sel.some(r => r.sector === s));
+      const vals = years.map(y => sectors.map(s => sum(sel.filter(r => r.year === y && r.sector === s), 'completed')));
+      const max = Math.max(1, ...vals.flat()), step = niceStep(max), top = Math.ceil(max / step) * step;
+      const sy = v => T + (H - T - B) * (1 - v / top), gw = (W - L) / years.length, bw = Math.min(56, (gw - 20) / sectors.length - 2);
+      let s = '';
+      for (let v = 0; v <= top; v += step) s += `<line x1="${L}" x2="${W}" y1="${sy(v)}" y2="${sy(v)}" stroke="#e6e6e6"/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end">${v >= 1000 ? v / 1000 + 'k' : v}</text>`;
+      years.forEach((y, i) => {
+        const x0 = L + gw * i + (gw - sectors.length * (bw + 2)) / 2;
+        sectors.forEach((sec, j) => {
+          const v = vals[i][j], x = x0 + j * (bw + 2), h = Math.max(0, sy(0) - sy(v));
+          s += `<path d="${barPath(x, sy(0), bw, h)}" fill="${SECTOR_COLORS[sec]}" data-tip="<b>${y}</b><br>${sec}: ${fmt(v)} completed"/>`;
+        });
+        s += `<text x="${L + gw * i + gw / 2}" y="${H - 5}" text-anchor="middle">${y}</text>`;
+      });
+      el.innerHTML = `<svg height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+      document.getElementById('yearKey').innerHTML = sectors.length > 1 ? sectors.map(sec => `<i style="background:${SECTOR_COLORS[sec]}"></i>${sec}`).join('') : '';
+      bindTips(el);
+    }
+
+    function typeChart(yr, year) {
+      document.getElementById('typeTitle').textContent = `FAFSA completion rate by community type, ${short(year)}`;
+      const el = document.getElementById('typeChart'), groups = {};
+      yr.filter(r => r.type).forEach(r => { const g = groups[r.type] ||= { c: 0, g: 0 }; g.c += r.completed || 0; g.g += r.grads || 0; });
+      const data = Object.entries(groups).filter(([, v]) => v.g).map(([k, v]) => ({ k, v: v.c / v.g * 100, c: v.c, g: v.g })).sort((a, b) => a.v - b.v);
+      const W = el.clientWidth, L = Math.min(Math.max(0, ...data.map(d => d.k.length)) * 6.2 + 8, W * 0.55), R = 36, row = 15, H = data.length * row + 20, sx = v => L + (W - L - R) * v / 100;
+      let s = [0, 50, 100].map(v => `<line x1="${sx(v)}" x2="${sx(v)}" y1="0" y2="${H - 16}" stroke="#e6e6e6"/><text x="${sx(v)}" y="${H - 3}" text-anchor="middle">${v}</text>`).join('');
+      data.forEach((d, i) => {
+        const y = i * row + 2;
+        s += `<g data-tip="<b>${d.k}</b><br>${d.v.toFixed(1)}% (${fmt(d.c)} of ${fmt(d.g)} graduates)"><rect x="0" y="${y - 1}" width="${W}" height="${row}" fill="transparent"/>` +
+          `<text x="${L - 6}" y="${y + 10}" text-anchor="end">${d.k}</text><path d="${hBarPath(L, y + 1, sx(d.v) - L, row - 4)}" fill="#86b04a"/>` +
+          `<text x="${sx(d.v) + 4}" y="${y + 10}">${d.v.toFixed(1)}</text></g>`;
+      });
+      el.innerHTML = data.length ? `<svg height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>` : '<p class="key">No data for this selection.</p>';
+      bindTips(el);
+    }
+
+    function niceStep(max) {
+      const p = Math.pow(10, Math.floor(Math.log10(max))), m = max / p;
+      return p * (m <= 2 ? 0.5 : m <= 5 ? 1 : 2);
+    }
+
+    function barPath(x, base, w, h) {
+      const r = Math.min(4, w / 2, h);
+      return `M${x},${base}V${base - h + r}Q${x},${base - h} ${x + r},${base - h}H${x + w - r}Q${x + w},${base - h} ${x + w},${base - h + r}V${base}Z`;
+    }
+
+    function hBarPath(x, y, w, h) {
+      const r = Math.min(4, h / 2, Math.max(w, 0));
+      return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`;
+    }
+  </script>
+</body>
+</html>
