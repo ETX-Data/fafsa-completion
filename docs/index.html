@@ -211,7 +211,7 @@
         <div class="card kpi" id="kpiLow"><div></div><div class="big" id="lowCount"></div><div id="lowLabel">districts below 50% completion</div></div>
         <div class="card chart"><h2 id="typeTitle"></h2><div id="typeChart"></div></div>
         <div class="card" id="scatterCard"><h2 id="scatterTitle"></h2><p class="sub">Each dot is a district in the table. Districts above the dashed trend line complete more FAFSAs than is typical for their share of economically disadvantaged students. Click a dot for details.</p><div id="scatter"></div></div>
-        <div class="card" id="fsaCard"><h2>Newer data from Federal Student Aid</h2><p class="sub" id="fsaSub"></p><div class="stats" id="fsaStats"></div></div>
+        <div class="card" id="fsaCard"><h2 id="fsaTitle">Latest FAFSA completions (Federal Student Aid)</h2><p class="sub" id="fsaSub"></p><div class="stats" id="fsaStats"></div></div>
         <div class="card note">Source: Texas Education Agency FAFSA completion reports (2022–23 through 2024–25) and Texas Academic Performance Reports; Texas House and Senate boundaries from U.S. Census Bureau TIGER/Line 2026; classes of 2026 and 2027 from Federal Student Aid’s <a href="https://studentaid.gov/data-center/student/application-volume/fafsa-completion-high-school" target="_blank" rel="noopener">FAFSA Completion by High School</a> data. District counts under 10 are suppressed by TEA and shown as no data. Charter districts appear in charts and tables but not on the map, as they have no attendance boundaries. Updated July 2026. Contact: <a href="mailto:data@everytexan.org">data@everytexan.org</a>
           <details><summary>How these numbers are calculated</summary><ul>
             <li>Completion rate = FAFSAs completed ÷ graduates, added up across districts. District-years where TEA suppressed the completion count are left out of both.</li>
@@ -376,7 +376,13 @@
       picked = idFromUrl();
       geoData = geo;
       initMap(geo);
-      countyEl.onchange = yearEl.onchange = sectorEl.onchange = legEl.onchange = escEl.onchange = bigEl.onchange = mapModeEl.onchange = render;
+      yearEl.onchange = sectorEl.onchange = bigEl.onchange = mapModeEl.onchange = render;
+      // County, legislative district and ESC region are alternative geographies: choosing one resets the others
+      const geoEls = [countyEl, legEl, escEl];
+      geoEls.forEach(el => el.onchange = () => {
+        if (el.value) geoEls.forEach(o => { if (o !== el) o.value = ''; });
+        render();
+      });
       legShowEl.onchange = showLegLines;
       const tb = document.getElementById('tbody');
       tb.onclick = e => { const tr = e.target.closest('tr[data-id]'); if (tr) pick(+tr.dataset.id); };
@@ -621,7 +627,9 @@
       typeChart(yr, year);
       table(yr, year);
       scatter(year);
-      fsaCard(sel, county || sector || leg || esc != null);
+      const place = (leg ? `School districts serving ${where}` : where || 'All of Texas') +
+        (sector === 'Charter' ? ' (charters)' : sector ? ' (traditional ISDs)' : '');
+      fsaCard(sel, county || sector || leg || esc != null, place);
       if (map && map.getLayer('fill')) {
         map.setPaintProperty('fill', 'fill-color', fillColor());
         const [ch, n] = leg ? leg.split(':') : ['', -1];
@@ -872,12 +880,14 @@
     const pctChange = (a, b) => a == null || !b ? '' : (() => { const v = (a - b) / b * 100; return `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</span>`; })();
     const asOfShort = s => s ? s.replace(/,\s*\d{4}$/, '') : '';
 
-    function fsaCard(sel, filtered) {
+    function fsaCard(sel, filtered, place) {
       if (!fsaMeta) return;
       const ids = filtered ? [...new Set(sel.map(r => r.id))] : Object.keys(fsa);
       const list = ids.map(id => fsa[id]).filter(Boolean), tot = k => list.reduce((s, r) => s + (r[k] || 0), 0);
       const c26 = tot('c26'), c25 = tot('c25'), c27 = tot('c27'), c27p = tot('c27_prev');
-      document.getElementById('fsaSub').innerHTML = `FAFSAs completed by seniors at ${filtered ? `the ${fmt(list.length)} public school districts in this selection` : 'Texas public high schools'}, processed through ${fsaMeta.as_of}. ` +
+      document.getElementById('fsaTitle').textContent = `Latest FAFSA completions (Federal Student Aid): ${place}`;
+      document.getElementById('fsaSub').innerHTML = `<b>TEA data above ends with the 2024–25 school year.</b> Federal Student Aid publishes FAFSA counts more often, so this card shows the classes of 2026 and 2027; it does not change with the School Year filter. ` +
+        `Counts are FAFSAs completed by seniors at ${filtered ? `the ${fmt(list.length)} public school districts in this selection` : 'Texas public high schools'}, processed through ${fsaMeta.as_of}. ` +
         `These are counts, not rates: FSA does not publish graduate counts, and its numbers differ somewhat from TEA’s. Schools with fewer than 5 are suppressed.`;
       document.getElementById('fsaStats').innerHTML =
         `<div class="stat"><div class="lbl">Class of 2026 (2025–26 school year)</div><div class="num">${fmt(c26)}</div>` +
