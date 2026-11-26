@@ -17,7 +17,39 @@
     .filter { display: block; padding: 12px 10px; border-bottom: 1px solid #ddd; }
     .filter span { display: block; font-size: 16px; }
     .filter select { width: 100%; margin-top: 4px; border: 0; padding: 2px 0; font: inherit; font-size: 14px; color: #555; background: transparent; cursor: pointer; }
-    main { display: grid; gap: 10px; min-width: 0; padding-right: 10px; }
+    #profile { padding: 12px 10px; font-size: 14px; }
+    #profile .hint { color: #777; }
+    #profile h3 { margin: 0; font-size: 20px; font-weight: 600; }
+    #profile .sub { color: #555; margin: 2px 0 12px; }
+    #profile .close { float: right; border: 0; background: none; font-size: 22px; line-height: 1; cursor: pointer; color: #777; }
+    #profile table { font-size: 14px; margin-bottom: 14px; }
+    #profile td, #profile th { padding: 6px 4px; }
+    #profile th { position: static; border-bottom: 2px solid #ddd; }
+    #profile tr.on td { font-weight: 700; background: #f3f7ec; }
+    #profile dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 0 0 12px; }
+    #profile dt { color: #555; }
+    #profile dd { margin: 0; text-align: right; font-weight: 600; }
+    #profile details { border-top: 1px solid #ddd; }
+    #profile summary { cursor: pointer; padding: 10px 0; font-weight: 600; font-size: 15px; }
+    #profile h4 { margin: 4px 0 6px; font-size: 13px; color: #3b758c; text-transform: uppercase; letter-spacing: .03em; }
+    #profile .staar { display: grid; grid-template-columns: 112px 1fr; gap: 5px 8px; align-items: center; font-size: 13px; margin-bottom: 12px; }
+    #profile .staar .bar { display: flex; height: 14px; border-radius: 3px; overflow: hidden; background: #f4f4f4; cursor: default; }
+    #profile .staar .bar span { height: 100%; }
+    #profile .staar .bar span + span { box-shadow: inset 1px 0 0 #fff; }
+    #profile .src { margin: 4px 0 10px; padding: 7px 9px; background: #f3f6f8; border-left: 3px solid #3b758c; font-size: 12px; color: #444; line-height: 1.45; }
+    #profile .na { color: #999; font-size: 12px; }
+    #profile .staarKey { font-size: 11px; color: #444; margin: 0 0 8px; line-height: 1.7; }
+    #profile .staarKey i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 0; vertical-align: -1px; }
+    #profile .pbars { display: grid; grid-template-columns: minmax(0, 132px) 1fr 44px; gap: 5px 8px; align-items: center; font-size: 13px; margin: 0 0 12px; }
+    #profile .pbars .lbl { color: #555; }
+    #profile .pbars .track { height: 12px; background: #f1f1f1; border-radius: 3px; overflow: hidden; }
+    #profile .pbars .track span { display: block; height: 100%; background: #74a2b3; border-radius: 3px; }
+    #profile .pbars .val { text-align: right; font-weight: 600; }
+    #profile .stack { display: flex; height: 16px; border-radius: 3px; overflow: hidden; background: #f1f1f1; margin: 2px 0 6px; cursor: default; }
+    #profile .stack span { height: 100%; }
+    #profile .stack span + span { box-shadow: inset 1px 0 0 #fff; }
+    #profile .staarKey em { font-style: normal; margin-right: 10px; white-space: nowrap; }
+    main { display: grid; gap: 10px; min-width: 0; padding-right: 10px; align-self: start; align-content: start; }
     .card { background: #fff; padding: 10px; min-width: 0; }
     #mapCard { padding: 0; }
     #mapCard h2 { padding: 12px 10px 6px; margin: 0; }
@@ -42,7 +74,25 @@
     td { padding: 10px 8px; border-bottom: 1px solid #e6e6e6; }
     td:nth-child(n+3), th:nth-child(n+3) { text-align: right; }
     td.low { color: #b3261e; }
+    #tbody tr { cursor: pointer; }
+    #tbody tr:hover td { background: #f3f7ec; }
+    #tbody tr.on td { background: #e4eed6; font-weight: 600; }
+    .tag { display: inline-block; margin-left: 6px; padding: 1px 5px; border-radius: 3px; background: #4e6b1a; color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .03em; vertical-align: 2px; }
     .note { grid-column: 1 / 3; font-size: 11px; font-weight: 600; line-height: 1.7; }
+    .search { position: relative; padding: 12px 10px; border-bottom: 1px solid #ddd; }
+    .search span { display: block; font-size: 16px; }
+    .search input { width: 100%; margin-top: 6px; padding: 7px 9px; font: inherit; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    .search input:focus { outline: 2px solid #74a2b3; outline-offset: -1px; border-color: #74a2b3; }
+    .search ul { position: absolute; left: 10px; right: 10px; top: 100%; margin: -10px 0 0; padding: 0; list-style: none; background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 10px rgba(0,0,0,.15); z-index: 20; max-height: 320px; overflow-y: auto; }
+    .search li { padding: 7px 9px; font-size: 14px; cursor: pointer; }
+    .search li small { color: #777; margin-left: 4px; }
+    .search li.on, .search li:hover { background: #f3f7ec; }
+    .search li.none { color: #777; cursor: default; background: none; }
+    .search li.geo { border-top: 1px solid #eee; color: #0b63ce; }
+    .search li.geo:first-child { border-top: 0; }
+    .search .msg { margin: 6px 0 0; font-size: 12px; color: #777; }
+    .search .msg.err { color: #b3261e; }
+    .maplibregl-ctrl-group button.ctl svg { display: block; margin: auto; }
     #tip { position: fixed; pointer-events: none; background: #fff; border: 1px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,.2); padding: 6px 9px; font-size: 13px; line-height: 1.45; display: none; z-index: 10; max-width: 280px; }
     @media (max-width: 1100px) {
       .wrap { grid-template-columns: 1fr; padding: 10px; }
@@ -56,8 +106,11 @@
   <header><h1>Every Texan FAFSA Completion Tracker</h1></header>
   <div class="wrap">
     <aside>
+      <div class="search"><label for="q"><span>Find a District or Address</span></label><input id="q" type="search" placeholder="District name, address, city, or ZIP…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qList" /><ul id="qList" role="listbox" hidden></ul><p class="msg" id="qMsg" hidden></p></div>
       <label class="filter"><span>County Name</span><select id="county"><option value="">No category selected</option></select></label>
       <label class="filter"><span>School Year</span><select id="year"></select></label>
+      <label class="filter"><span>District Type</span><select id="sector"><option value="">All districts</option><option>Traditional ISD</option><option>Charter</option></select></label>
+      <div id="profile"></div>
     </aside>
     <main>
       <section class="card" id="mapCard">
@@ -72,7 +125,7 @@
           <h2>Lowest Completion Rates (districts with 30+ graduates)</h2>
           <div class="scroll"><table><thead><tr><th>District Name</th><th>County</th><th>FAFSA Completion Rate</th><th>Total Graduates</th></tr></thead><tbody id="tbody"></tbody></table></div>
         </div>
-        <div class="card kpi" id="kpiLow"><div></div><div class="big" id="lowCount"></div><div>districts below 50% completion</div></div>
+        <div class="card kpi" id="kpiLow"><div></div><div class="big" id="lowCount"></div><div id="lowLabel">districts below 50% completion</div></div>
         <div class="card chart"><h2 id="typeTitle"></h2><div id="typeChart"></div></div>
         <div class="card note">Source: Texas Education Agency FAFSA completion reports (2022–23 through 2024–25) and Texas Academic Performance Reports. District counts under 10 are suppressed by TEA and shown as no data. Charter districts appear in charts and tables but not on the map, as they have no attendance boundaries. Updated July 2026. Contact: <a href="mailto:data@everytexan.org">data@everytexan.org</a></div>
       </div>
@@ -90,50 +143,243 @@
     const tip = document.getElementById('tip');
     const showTip = (e, html) => { tip.innerHTML = html; tip.style.display = 'block'; tip.style.left = Math.min(e.clientX + 14, innerWidth - 290) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; };
     const hideTip = () => { tip.style.display = 'none'; };
-    const countyEl = document.getElementById('county'), yearEl = document.getElementById('year');
-    let rows = [], years = [], bounds = {}, map;
+    const countyEl = document.getElementById('county'), yearEl = document.getElementById('year'), sectorEl = document.getElementById('sector');
+    const HINT = '<p class="hint">Click a district on the map or in the table to see its data. Charter districts have no boundaries, so they appear only in the table.</p>';
+    const TEXAS = [-106.7, 25.8, -93.5, 36.5];
+    let rows = [], years = [], bounds = {}, distBounds = {}, districts = [], geoData = null, map, picked = null, profiles = {};
+    const RACES = [['african_american', 'African American'], ['hispanic', 'Hispanic'], ['white', 'White'], ['american_indian', 'American Indian'], ['asian', 'Asian'], ['pacific_islander', 'Pacific Islander'], ['two_or_more_races', 'Two or more races']];
+    const PROGRAMS = [['bilingual_esl_education', 'Bilingual/ESL'], ['career_and_technical_education', 'Career & technical'], ['special_education', 'Special education']];
+    const SECTIONS = [
+      ['District', [
+        ['', [['esc_region', 'ESC region', 't'], ['community_type', 'Community type', 't'], ['is_rural', 'Rural', 'yn'], ['district_size', 'District size', 't'], ['total_number_of_schools', 'Schools', 'n'], ['property_wealth', 'Property wealth', 't'], ['tax_rate', 'Tax rate', 't']]]]],
+      ['Students', [
+        ['', [['total_students', 'Total students', 'n'], ['stu_pct_economically_disadvantaged', 'Economically disadvantaged', 'p'], ['stu_pct_english_learners_el', 'English learners', 'p'], ['stu_pct_gifted_and_talented_education', 'Gifted & talented', 'p'],
+          ...PROGRAMS.map(([k, l]) => ['stu_pct_' + k, l, 'p'])]],
+        ['Race/ethnicity', RACES.map(([k, l]) => ['stu_pct_' + k, l, 'p']), 'bars']]],
+      ['Graduation & college readiness', [
+        ['', [['F4_yr_longitudinal_graduation_rate_class_of_2022_district_exc', '4-yr graduation rate (class of {c:2022})', 'p'], ['F5_yr_longitudinal_graduation_rate_class_of_2021_district_exc', '5-yr graduation rate (class of {c:2021})', 'p'],
+          ['F6_yr_longitudinal_graduation_rate_class_of_2020_district_exc', '6-yr graduation rate (class of {c:2020})', 'p'], ['attendance_rate_2021_22', 'Attendance rate ({s:2021})', 'p'], ['annual_dropout_rate_gr_9_12_2021_22', 'Dropout rate, gr. 9–12 ({s:2021})', 'p'],
+          ['annual_graduate_count_2021_22', 'Graduates ({s:2021})', 'n'], ['annual_rhsp_dap_fhsp_e_fhsp_dla_graduate_count_2021_22', 'Graduates, RHSP/DAP/FHSP-E/DLA ({s:2021})', 'n'],
+          ['college_admissions_pct_tested_2021_2022', 'Tested on SAT/ACT ({s:2021})', 'p'], ['college_admissions_pct_at_above_criterion_2021_2022', 'At/above SAT/ACT criterion', 'p'],
+          ['sat_average_score_2022_2021', 'SAT average score', 'n'], ['act_average_score_2022_2021', 'ACT average score', 'd']]]]],
+      ['STAAR (% of tests, all grades)', 'staar'],
+      ['Staff', [
+        ['', [['total_staff_fte', 'Total staff (FTE)', 'd'], ['total_teacher_fte', 'Teachers (FTE)', 'd'], ['number_of_students_per_teacher', 'Students per teacher', 'd'], ['number_of_students_per_total_staff', 'Students per staff', 'd'], ['staff_pct_minority', 'Staff of color', 'p']]],
+        ['Staff by role', [['staff_pct_teachers', 'Teachers', 'p'], ['staff_pct_educational_aides', 'Educational aides', 'p'], ['staff_pct_professional_support', 'Professional support', 'p'], ['staff_pct_school_administrative', 'School administrative', 'p'], ['staff_pct_central_administrative', 'Central administrative', 'p'], ['staff_pct_auxiliary', 'Auxiliary', 'p']], 'bars'],
+        ['Average salary', [['avg_salary_teacher', 'Teacher', '$'], ['avg_salary_professional_support', 'Professional support', '$'], ['avg_salary_school_administrative', 'School administrative', '$'], ['avg_salary_central_administrative', 'Central administrative', '$']]]]],
+      ['Teachers', [
+        ['', [['teacher_average_years_of_experience', 'Average years of experience', 'd'], ['tch_pct_with_5_or_fewer_years_of_experience', '5 or fewer years of experience', 'p'], ['tch_pct_with_advanced_degrees', 'Advanced degree', 'p'], ['teacher_turnover_rate', 'Turnover rate', 'p']]],
+        ['Race/ethnicity', RACES.map(([k, l]) => ['tch_pct_' + k, l, 'p']), 'bars'],
+        ['Assignment', [['tch_pct_regular_education', 'Regular education', 'p'], ...PROGRAMS.map(([k, l]) => ['tch_pct_' + k, l, 'p']), ['tch_pct_compensatory_education', 'Compensatory education', 'p'], ['tch_pct_other_education_includes_g_and_t', 'Other (incl. gifted & talented)', 'p']], 'bars']]],
+      ['Finance ({s:2021})', [
+        ['Revenue', [['total_operating_and_other_revenue_2021_22', 'Total operating & other revenue', '$'], ['total_operating_and_other_revenue_per_pupil', 'Per pupil', '$'], ['total_operating_revenue_2021_22', 'Operating revenue', '$'], ['total_other_revenue_2021_22', 'Other revenue', '$'],
+          ['fund_balance_for_isds', 'Fund balance (ISDs)', '$'], ['net_assets_charter_schools', 'Net assets (charters)', '$'],
+          ['taxable_value_per_pupil_2020_tax_year', 'Taxable value per pupil ({c:2020} tax year)', '$'], ['locally_adopted_tax_rate_2021_tax_year', 'Adopted tax rate ({c:2021} tax year)', 'r4']]],
+        ['Revenue by source', [['rev_pct_state', 'State', 'p'], ['rev_pct_local_and_other', 'Local & other', 'p'], ['rev_pct_federal', 'Federal', 'p']], 'stack'],
+        ['Expenditures', [['total_actual_expenditures_2021_22', 'Total expenditures', '$'], ['total_actual_operating_expenditures_2021_22', 'Operating expenditures', '$'], ['total_actual_operating_expenditures_per_pupil', 'Operating, per pupil', '$'],
+          ['total_actual_instructional_expenditures', 'Instructional expenditures', '$'], ['total_actual_instructional_expenditures_per_pupil', 'Instructional, per pupil', '$']]],
+        ['Operating spending by function', [['exp_pct_instructional', 'Instruction', 'p'], ['exp_pct_school_leadership', 'School leadership', 'p'], ['exp_pct_central_administrative', 'Central administration', 'p'], ['exp_pct_plant_services', 'Plant services', 'p'], ['exp_pct_other_operating', 'Other operating', 'p']], 'bars'],
+        ['Instructional spending by program', [['exp_pct_basic_education_services', 'Basic education', 'p'], ['exp_pct_special_education', 'Special education', 'p'], ['exp_pct_state_compensatory_education', 'State compensatory', 'p'], ['exp_pct_bilingual_esl_education', 'Bilingual/ESL', 'p'],
+          ['exp_pct_career_and_technical_education', 'Career & technical', 'p'], ['exp_pct_gifted_and_talented_education', 'Gifted & talented', 'p'], ['exp_pct_athletics_related_activities', 'Athletics', 'p'], ['exp_pct_high_school_allotment', 'High school allotment', 'p'],
+          ['exp_pct_prekindergarten', 'Pre-K', 'p'], ['exp_pct_un_allocated', 'Unallocated', 'p']], 'bars']]]
+    ];
+    const STAAR = [['all_subjects', 'All subjects'], ['ela_reading', 'ELA/reading'], ['mathematics', 'Math'], ['science', 'Science'], ['social_studies', 'Social studies'], ...RACES, ['economically_disadvantaged', 'Econ. disadvantaged']];
+    const STAAR_LEVELS = [['Masters', '#3b758c'], ['Meets', '#74a2b3'], ['Approaches', '#d9c79f'], ['Did not meet', '#e4e4e4']];
+    const STACK_COLORS = ['#3b758c', '#74a2b3', '#d9c79f'];
+    const show = (v, f) => {
+      if (v == null || v === '') return '—';
+      if (f === 't') return v;
+      if (f === 'yn') return v === 'True' ? 'Yes' : 'No';
+      if (f === '$') return (v < 0 ? '-$' : '$') + Math.abs(Math.round(v)).toLocaleString('en-US');
+      if (v < 0) return '—';
+      if (f === 'p') return v + '%';
+      if (f === 'r4') return '$' + v.toFixed(4);
+      if (f === 'd') return v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      return Math.round(v).toLocaleString('en-US');
+    };
 
     document.getElementById('legend').innerHTML = '<b>FAFSA completion rate</b>' +
       ['0 – 25%', '> 25 – 50%', '> 50 – 75%', '> 75%'].map((l, i) => `<div><i style="background:${COLORS[i]}"></i>${l}</div>`).join('') +
       `<div><i style="background:${NODATA}"></i>No data</div>`;
 
-    Promise.all([fetch('data/fafsa.json').then(r => r.json()), fetch('data/districts.geojson').then(r => r.json())]).then(([data, geo]) => {
+    Promise.all(['data/fafsa.json', 'data/districts.geojson', 'data/profiles.json'].map(u => fetch(u).then(r => r.json()))).then(([data, geo, prof]) => {
       rows = data;
+      prof.rows.forEach(r => { const o = Object.fromEntries(prof.cols.map((c, i) => [c, r[i]])); profiles[o.district_id] = o; });
       years = [...new Set(rows.map(r => r.year))].sort();
       yearEl.innerHTML = years.map(y => `<option>${y}</option>`).join('');
       yearEl.value = years[years.length - 1];
       [...new Set(rows.map(r => r.county).filter(Boolean))].sort().forEach(c => countyEl.add(new Option(c, c)));
       geo.features.forEach(f => {
-        const b = bounds[f.properties.county] ||= [180, 90, -180, -90];
+        const b = bounds[f.properties.county] ||= [180, 90, -180, -90], db = distBounds[f.properties.id] ||= [180, 90, -180, -90];
         JSON.stringify(f.geometry.coordinates).match(/-?\d+\.?\d*,-?\d+\.?\d*/g).forEach(p => {
           const [x, y] = p.split(',').map(Number);
-          b[0] = Math.min(b[0], x); b[1] = Math.min(b[1], y); b[2] = Math.max(b[2], x); b[3] = Math.max(b[3], y);
+          for (const bb of [b, db]) { bb[0] = Math.min(bb[0], x); bb[1] = Math.min(bb[1], y); bb[2] = Math.max(bb[2], x); bb[3] = Math.max(bb[3], y); }
         });
       });
+      const seen = new Map();
+      rows.forEach(r => seen.set(r.id, { id: r.id, name: r.name, county: r.county, sector: r.sector }));
+      districts = [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
+      picked = idFromUrl();
+      geoData = geo;
       initMap(geo);
-      countyEl.onchange = yearEl.onchange = render;
+      countyEl.onchange = yearEl.onchange = sectorEl.onchange = render;
+      document.getElementById('tbody').onclick = e => { const tr = e.target.closest('tr[data-id]'); if (tr) pick(+tr.dataset.id); };
       addEventListener('resize', render);
+      addEventListener('popstate', () => { picked = idFromUrl(); profile(); markRow(); zoomTo(picked); });
+      initSearch();
       render();
     });
 
+    // The picked district lives in the URL (?district=<TEA id>) so any view can be bookmarked or shared
+    function idFromUrl() {
+      const id = +new URLSearchParams(location.search).get('district');
+      return id && rows.some(r => r.id === id) ? id : null;
+    }
+
+    function pick(id, zoom) {
+      picked = id;
+      profile(); markRow();
+      if (zoom) zoomTo(id);
+      const u = new URL(location.href);
+      if (id == null) u.searchParams.delete('district'); else u.searchParams.set('district', id);
+      if (u.href !== location.href) history.pushState(null, '', u);
+    }
+
+    function zoomTo(id) {
+      if (map && id != null && distBounds[id]) map.fitBounds(distBounds[id], { padding: 60, maxZoom: 10 });
+    }
+
+    function goHome() { map.fitBounds(TEXAS, { padding: 20 }); }
+
+    function resetAll() {
+      countyEl.value = ''; sectorEl.value = ''; yearEl.value = years[years.length - 1];
+      document.getElementById('q').value = '';
+      clearPlace();
+      pick(null);
+      render();
+      goHome();
+    }
+
+    function initSearch() {
+      const q = document.getElementById('q'), list = document.getElementById('qList');
+      let hits = [], idx = -1;
+      const close = () => { list.hidden = true; q.setAttribute('aria-expanded', 'false'); idx = -1; };
+      const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+      const draw = () => {
+        list.innerHTML = hits.map((d, i) => d.geo
+          ? `<li role="option" data-i="${i}" class="geo ${i === idx ? 'on' : ''}">📍 Find address or ZIP: “${esc(d.text)}”</li>`
+          : `<li role="option" data-i="${i}" class="${i === idx ? 'on' : ''}">${d.name}<small>${d.county} County${d.sector === 'Charter' ? ' · Charter' : ''}</small></li>`).join('');
+        list.hidden = false; q.setAttribute('aria-expanded', 'true');
+        const on = list.querySelector('li.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+      };
+      const choose = d => { close(); q.blur(); if (d.geo) findPlace(d.text); else { q.value = d.name; clearPlace(); pick(d.id, true); } };
+      q.oninput = () => {
+        const raw = q.value.trim(), s = raw.toLowerCase();
+        if (!s) { close(); return; }
+        const starts = [], has = [];
+        districts.forEach(d => { const n = d.name.toLowerCase(); if (n.startsWith(s)) starts.push(d); else if (n.includes(s) || (d.county || '').toLowerCase().startsWith(s)) has.push(d); });
+        hits = [...starts, ...has].slice(0, 30);
+        // Anything typed can also be looked up as a place; lead with that option when it looks like a ZIP or street address
+        if (raw.length >= 3) { const g = { geo: true, text: raw }; /^\d/.test(raw) || !hits.length ? hits.unshift(g) : hits.push(g); }
+        idx = hits.length ? 0 : -1;
+        if (hits.length) draw(); else close();
+      };
+      q.onkeydown = e => {
+        if (list.hidden) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (hits.length) { idx = (idx + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length; draw(); } }
+        else if (e.key === 'Enter') { e.preventDefault(); if (hits[idx]) choose(hits[idx]); }
+        else if (e.key === 'Escape') close();
+      };
+      list.onmousedown = e => { const li = e.target.closest('li[data-i]'); if (li) { e.preventDefault(); choose(hits[+li.dataset.i]); } };
+      q.onblur = close;
+    }
+
+    // Address / ZIP lookup via OpenStreetMap Nominatim (free, no key). Its usage policy forbids
+    // per-keystroke autocomplete, so it is only called when the person picks the "Find address" option.
+    let placeMarker = null;
+    function setMsg(text, err) { const m = document.getElementById('qMsg'); m.textContent = text || ''; m.hidden = !text; m.classList.toggle('err', !!err); }
+    function clearPlace() { if (placeMarker) { placeMarker.remove(); placeMarker = null; } setMsg(''); }
+
+    async function findPlace(text) {
+      clearPlace();
+      setMsg('Searching…');
+      const zip = /^\d{5}(-\d{4})?$/.test(text);
+      const q = zip ? text.slice(0, 5) + ', Texas' : /\btx\b|texas/i.test(text) ? text : text + ', Texas';
+      const params = new URLSearchParams({ format: 'jsonv2', limit: '1', countrycodes: 'us', viewbox: TEXAS.join(','), bounded: '1', q });
+      let hit;
+      try {
+        const res = await fetch('https://nominatim.openstreetmap.org/search?' + params, { headers: { 'Accept-Language': 'en' } });
+        if (!res.ok) throw new Error(res.status);
+        hit = (await res.json())[0];
+      } catch (e) { setMsg('The address lookup service is unavailable right now. Try again in a moment.', true); return; }
+      if (!hit) { setMsg(`No Texas location found for “${text}”. Try adding a city or ZIP.`, true); return; }
+      const lng = +hit.lon, lat = +hit.lat, id = districtAt(lng, lat);
+      const label = hit.display_name.replace(/, United States$/, '');
+      placeMarker = new maplibregl.Marker({ color: '#b3261e' }).setLngLat([lng, lat])
+        .setPopup(new maplibregl.Popup({ offset: 25, closeButton: false }).setText(label)).addTo(map);
+      if (id != null) {
+        pick(id);
+        const name = districts.find(d => d.id === id)?.name || 'this district';
+        setMsg(`📍 ${label} is in ${name}.`);
+        // Frame both the district and the searched point
+        const b = distBounds[id].slice();
+        b[0] = Math.min(b[0], lng); b[1] = Math.min(b[1], lat); b[2] = Math.max(b[2], lng); b[3] = Math.max(b[3], lat);
+        map.fitBounds(b, { padding: 60, maxZoom: 11 });
+      } else {
+        setMsg(`📍 ${label} — no school district boundary found at this point.`, true);
+        map.flyTo({ center: [lng, lat], zoom: 10 });
+      }
+    }
+
+    // Which district polygon contains this point (even-odd ray casting; handles holes and multipolygons)
+    function districtAt(lng, lat) {
+      const inRing = ring => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i], [xj, yj] = ring[j]; if ((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) c = !c; } return c; };
+      const inPoly = rings => inRing(rings[0]) && !rings.slice(1).some(inRing);
+      for (const f of geoData.features) {
+        const b = distBounds[f.properties.id];
+        if (!b || lng < b[0] || lng > b[2] || lat < b[1] || lat > b[3]) continue;
+        const g = f.geometry, polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+        if (polys.some(inPoly)) return f.properties.id;
+      }
+      return null;
+    }
+
+    // Map buttons: zoom back to the whole state, and reset every filter and selection
+    class HomeResetControl {
+      onAdd() {
+        const el = document.createElement('div');
+        el.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+        el.innerHTML =
+          '<button type="button" class="ctl" title="Zoom to all of Texas" aria-label="Zoom to all of Texas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button>' +
+          '<button type="button" class="ctl" title="Reset filters and selection" aria-label="Reset filters and selection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>';
+        const [home, reset] = el.querySelectorAll('button');
+        home.onclick = goHome; reset.onclick = resetAll;
+        return el;
+      }
+      onRemove() {}
+    }
+
     function initMap(geo) {
-      map = new maplibregl.Map({ container: 'map', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', bounds: [-106.7, 25.8, -93.5, 36.5], fitBoundsOptions: { padding: 20 }, attributionControl: { compact: true } });
+      map = new maplibregl.Map({ container: 'map', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', bounds: TEXAS, fitBoundsOptions: { padding: 20 }, attributionControl: { compact: true } });
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
+      map.addControl(new HomeResetControl(), 'top-left');
       map.on('load', () => {
         map.addSource('d', { type: 'geojson', data: geo, promoteId: 'id' });
         map.addLayer({ id: 'fill', type: 'fill', source: 'd', paint: { 'fill-color': fillColor(), 'fill-opacity': 0.9 } });
         map.addLayer({ id: 'line', type: 'line', source: 'd', paint: { 'line-color': '#fff', 'line-width': 0.4 } });
         map.addLayer({ id: 'sel', type: 'line', source: 'd', filter: ['==', ['get', 'county'], ''], paint: { 'line-color': '#1a1a1a', 'line-width': 1.5 } });
         map.addLayer({ id: 'hover', type: 'line', source: 'd', filter: ['==', ['get', 'id'], -1], paint: { 'line-color': '#1a1a1a', 'line-width': 2.5 } });
+        map.addLayer({ id: 'picked', type: 'line', source: 'd', filter: ['==', ['get', 'id'], -1], paint: { 'line-color': '#b3261e', 'line-width': 3 } });
         map.on('mousemove', 'fill', e => {
           const p = e.features[0].properties, y = yearEl.value;
           map.getCanvas().style.cursor = 'pointer';
           map.setFilter('hover', ['==', ['get', 'id'], p.id]);
-          showTip(e.originalEvent, `<b>${p.name}</b><br>${p.county} County · ${p.type || ''}<br>FAFSA completion, ${short(y)}: <b>${pct(p['rate_' + y])}</b><br>${fmt(p['completed_' + y])} of ${fmt(p['grads_' + y])} graduates` +
-            `<br>Students: ${fmt(p.students)}<br>Economically disadvantaged: ${p.econ == null ? '—' : p.econ + '%'}<br>4-yr graduation rate (2022): ${p.grad4 == null ? '—' : p.grad4 + '%'}`);
+          showTip(e.originalEvent, `<b>${p.name}</b><br>FAFSA completion, ${short(y)}: <b>${pct(p['rate_' + y])}</b><br><span style="color:#777">Click for details</span>`);
         });
         map.on('mouseleave', 'fill', () => { map.getCanvas().style.cursor = ''; map.setFilter('hover', ['==', ['get', 'id'], -1]); hideTip(); });
+        map.on('click', 'fill', e => pick(e.features[0].properties.id));
         render();
+        zoomTo(picked);
       });
     }
 
@@ -143,28 +389,90 @@
     }
 
     function render() {
-      const county = countyEl.value, year = yearEl.value;
-      const sel = rows.filter(r => !county || r.county === county);
+      const county = countyEl.value, year = yearEl.value, sector = sectorEl.value;
+      const sel = rows.filter(r => (!county || r.county === county) && (!sector || r.sector === sector));
       const yr = sel.filter(r => r.year === year);
       const c = sum(yr, 'completed'), g = sum(yr, 'grads');
       document.getElementById('kpiOf').textContent = `${fmt(c)} of ${fmt(g)} graduates`;
       document.getElementById('kpiPct').textContent = g ? pct(c / g) : '—';
-      document.getElementById('kpiWhere').textContent = 'completed a FAFSA ' + (county ? `in ${county} County` : 'statewide');
+      document.getElementById('kpiWhere').textContent = 'completed a FAFSA ' + (county ? `in ${county} County` : 'statewide') +
+        (sector === 'Charter' ? ' (charters)' : sector ? ' (traditional ISDs)' : '');
       document.getElementById('lowCount').textContent = yr.filter(r => r.rate != null && r.rate < 0.5 && r.completed > 0).length;
+      document.getElementById('lowLabel').textContent = (sector === 'Charter' ? 'charter districts' : 'districts') + ' below 50% completion';
+      profile();
       yearChart(sel);
       typeChart(yr, year);
       document.getElementById('tbody').innerHTML = yr.filter(r => r.grads >= 30 && r.rate != null && r.completed > 0)
         .sort((a, b) => a.rate - b.rate).slice(0, 25)
-        .map(r => `<tr><td>${r.name}</td><td>${r.county}</td><td class="${r.rate < 0.4 ? 'low' : ''}">${pct(r.rate)}</td><td>${fmt(r.grads)}</td></tr>`).join('')
+        .map(r => `<tr data-id="${r.id}"><td>${r.name}${r.sector === 'Charter' ? '<span class="tag">CHARTER</span>' : ''}</td><td>${r.county}</td><td class="${r.rate < 0.4 ? 'low' : ''}">${pct(r.rate)}</td><td>${fmt(r.grads)}</td></tr>`).join('')
         || '<tr><td colspan="4">No districts match.</td></tr>';
+      markRow();
       if (map && map.getLayer('fill')) {
         map.setPaintProperty('fill', 'fill-color', fillColor());
         map.setFilter('sel', ['==', ['get', 'county'], county]);
         if (county && bounds[county]) map.fitBounds(bounds[county], { padding: 40, maxZoom: 10 });
-        else if (!county && render.last) map.fitBounds([-106.7, 25.8, -93.5, 36.5], { padding: 20 });
+        else if (!county && render.last) map.fitBounds(TEXAS, { padding: 20 });
         render.last = county;
       }
     }
+
+    function markRow() {
+      document.querySelectorAll('#tbody tr[data-id]').forEach(tr => tr.classList.toggle('on', +tr.dataset.id === picked));
+    }
+
+    function profile() {
+      const el = document.getElementById('profile');
+      if (map && map.getLayer('picked')) map.setFilter('picked', ['==', ['get', 'id'], picked ?? -1]);
+      const own = picked == null ? [] : rows.filter(r => r.id === picked);
+      if (!own.length) { el.innerHTML = HINT; return; }
+      const byYear = Object.fromEntries(own.map(r => [r.year, r])), info = own[own.length - 1];
+      const p = { name: info.name, county: info.county, type: info.type, sector: info.sector };
+      years.forEach(y => { const r = byYear[y] || {}; p['rate_' + y] = r.rate; p['completed_' + y] = r.completed; p['grads_' + y] = r.grads; });
+      const d = profiles[picked] || {}, chg = d.rate_change_2223_to_2425;
+      const dl = items => `<dl>${items.map(([k, l, f]) => `<dt>${l}</dt><dd>${show(d[k], f)}</dd>`).join('')}</dl>`;
+      // Share-of-whole lists render as horizontal bars on a 0–100% scale
+      const bars = items => `<div class="pbars">${items.map(([k, l]) => {
+        const v = d[k], ok = v != null && v !== '' && v >= 0;
+        return `<div class="lbl">${l}</div><div class="track">${ok ? `<span style="width:${Math.min(100, v)}%"></span>` : ''}</div><div class="val">${show(v, 'p')}</div>`;
+      }).join('')}</div>`;
+      // Parts of one whole render as a single 100% stacked bar with a key underneath
+      const stack = items => {
+        const vals = items.map(([k]) => { const v = d[k]; return v == null || v === '' || v < 0 ? null : +v; });
+        if (vals.every(v => v == null)) return '<p class="na">No data</p>';
+        const tipHtml = items.map(([, l], i) => `${l}: ${show(vals[i], 'p')}`).join('<br>');
+        return `<div class="stack" data-tip="${tipHtml}">${vals.map((v, i) => `<span style="width:${v || 0}%;background:${STACK_COLORS[i]}"></span>`).join('')}</div>` +
+          `<div class="staarKey">${items.map(([, l], i) => `<em><i style="background:${STACK_COLORS[i]}"></i>${l} <b>${show(vals[i], 'p')}</b></em>`).join('')}</div>`;
+      };
+      // Section labels are written for the 2022–23 TAPR ({c:2022} = class/tax year, {s:2021} = school year 2021–22);
+      // shift them by however many years newer this district's TAPR snapshot is.
+      const taprStart = parseInt(d.tapr_source_year), off = isNaN(taprStart) ? 0 : taprStart - 2022;
+      const yearLabels = html => html.replace(/\{c:(\d{4})\}/g, (_, y) => +y + off)
+        .replace(/\{s:(\d{4})\}/g, (_, y) => `${+y + off}–${String((+y + off + 1) % 100).padStart(2, '0')}`);
+      const taprLabel = isNaN(taprStart) ? 'not available' : `${taprStart}–${String((taprStart + 1) % 100).padStart(2, '0')} Texas Academic Performance Report (TAPR)`;
+      const staarKey = (k, lvl) => Object.keys(d).find(c => c.startsWith(`staar_${k}_at_${lvl}`));
+      const staarVal = (k, lvl) => { const v = d[staarKey(k, lvl)]; return v == null || v === '' || v < 0 ? null : +v; };
+      const staar = '<div class="staarKey">' + STAAR_LEVELS.map(([l, c]) => `<em><i style="background:${c}"></i>${l}</em>`).join('') + '</div><div class="staar">' +
+        STAAR.map(([k, l]) => {
+          const [a, me, ma] = ['approaches', 'meets', 'masters'].map(lvl => staarVal(k, lvl));
+          if (a == null || me == null || ma == null) return `<div>${l}</div><div class="na">No data</div>`;
+          // TEA levels are cumulative (Approaches ≥ Meets ≥ Masters), so split them into exclusive segments summing to 100%
+          const segs = [ma, me - ma, a - me, 100 - a].map(v => Math.max(0, v));
+          const tipHtml = `<b>${l}</b><br>Approaches or above: ${a}%<br>Meets or above: ${me}%<br>Masters: ${ma}%<br>Did not meet: ${Math.max(0, 100 - a).toFixed(0)}%`;
+          return `<div>${l}</div><div class="bar" data-tip="${tipHtml}">` +
+            segs.map((v, i) => `<span style="width:${v}%;background:${STAAR_LEVELS[i][1]}"></span>`).join('') + '</div>';
+        }).join('') + '</div>';
+      el.innerHTML = `<button class="close" title="Close" onclick="pick(null)">×</button><h3>${p.name}</h3>` +
+        `<div class="sub">${p.county} County · ${p.sector === 'Charter' ? 'Charter district' : p.type || '—'}</div>` +
+        `<table><thead><tr><th>FAFSA</th><th>Rate</th><th>Completed</th><th>Grads</th></tr></thead><tbody>` +
+        years.map(y => `<tr class="${y === yearEl.value ? 'on' : ''}"><td>${short(y)}</td><td class="${p['rate_' + y] < 0.4 ? 'low' : ''}">${pct(p['rate_' + y])}</td><td>${fmt(p['completed_' + y])}</td><td>${fmt(p['grads_' + y])}</td></tr>`).join('') +
+        `</tbody></table><dl><dt>Change, 2022–23 to 2024–25</dt><dd>${chg == null ? '—' : (chg > 0 ? '+' : '') + (chg * 100).toFixed(1) + ' pts'}</dd></dl>` +
+        `<p class="src">District data below: <b>${taprLabel}</b>, the latest available. It does not change with the School Year filter.</p>` +
+        yearLabels(SECTIONS.map(([title, body], i) => `<details${profile.open.has(i) ? ' open' : ''} data-t="${i}"><summary>${title}</summary>` +
+          (body === 'staar' ? staar : body.map(([h, items, kind]) => (h ? `<h4>${h}</h4>` : '') + (kind === 'bars' ? bars(items) : kind === 'stack' ? stack(items) : dl(items))).join('')) + '</details>').join(''));
+      el.querySelectorAll('details').forEach(x => x.ontoggle = () => profile.open[x.open ? 'add' : 'delete'](+x.dataset.t));
+      bindTips(el);
+    }
+    profile.open = new Set([0]);
 
     function bindTips(el) {
       el.querySelectorAll('[data-tip]').forEach(n => { n.onmousemove = e => showTip(e, n.dataset.tip); n.onmouseleave = hideTip; });

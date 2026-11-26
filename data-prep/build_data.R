@@ -4,46 +4,62 @@ library(tidyr)
 library(rmapshaper)
 library(jsonlite)
 
-dir.create("docs/data", recursive = TRUE, showWarnings = FALSE)
-
-raw <- st_read("fafsa_districts_2026.geojson", quiet = TRUE) %>%
-  mutate(community_type = na_if(trimws(community_type), ""))
-
-year_cols <- "^(fafsa_completed|total_graduates|fafsa_completion_rate)_(\\d{4}_\\d{4})$"
-
-wide <- raw %>%
-  st_drop_geometry() %>%
-  distinct(district_id, .keep_all = TRUE) %>%
-  select(id = district_id, name = NAME, county = county_name, type = community_type,
-         matches(year_cols))
-
-# Charter-inclusive table, if exported
-if (file.exists("fafsa_long.csv")) {
-  fafsa <- read.csv("fafsa_long.csv", check.names = FALSE, fileEncoding = "UTF-8-BOM") %>%
-    transmute(name = gsub("\\b(C?)isd\\b", "\\1ISD", tools::toTitleCase(tolower(district_name)), ignore.case = TRUE),
-              county = county_name, type = na_if(trimws(community_type), ""),
-              sector = Sector, year = gsub("_", "-", as.character(year)),
-              completed = fafsa_completed, grads = total_graduates, rate = fafsa_completion_rate)
-} else {
-  fafsa <- wide %>%
-    pivot_longer(matches(year_cols), names_to = c(".value", "year"), names_pattern = year_cols) %>%
-    transmute(name, county, type, sector = "Traditional ISD", year = sub("_", "-", year),
-              completed = fafsa_completed, grads = total_graduates, rate = fafsa_completion_rate)
+# Run from the project root (open fafsa-completion.Rproj).
+# Inputs: Esri exports in esri_download/
+#   fafsa_districts_2026      - ISD boundaries with wide FAFSA columns (map)
+#   fafsa_completion_long     - one row per district x year, ISDs + charters, no geometry
+in_dir <- "esri_download"
+read_esri <- function(name) {
+  gj <- file.path(in_dir, paste0(name, ".geojson"))
+  src <- if (file.exists(gj)) gj else paste0("/vsizip/", file.path(in_dir, paste0(name, ".zip")))
+  st_read(src, quiet = TRUE)
 }
 
-fafsa <- filter(fafsa, !is.na(completed) | !is.na(grads))
+dir.create("docs/data", recursive = TRUE, showWarnings = FALSE)
+
+# ---- Long table: ISDs + charters -------------------------------------------
+long <- read_esri("fafsa_completion_long") %>%
+  st_drop_geometry() %>%
+  filter(!is.na(district_id)) %>%
+  mutate(id = as.integer(district_id),
+         community_type = na_if(trimws(community_type), ""),
+         Sector = coalesce(na_if(trimws(Sector), ""), "Traditional ISD"))
+
+nice_name <- function(x) gsub("\\b(C?)isd\\b", "\\1ISD", tools::toTitleCase(tolower(x)), ignore.case = TRUE)
+
+fafsa <- long %>%
+  transmute(id, name = nice_name(district_name), county = county_name, type = community_type,
+            sector = Sector, year, completed = fafsa_completed, grads = total_graduates,
+            rate = fafsa_completion_rate) %>%
+  filter(!is.na(completed) | !is.na(grads)) %>%
+  arrange(name, year)
+
 write_json(fafsa, "docs/data/fafsa.json", digits = 4, na = "null")
 
-map_rates <- wide %>%
-  pivot_longer(matches(year_cols), names_to = c(".value", "year"), names_pattern = year_cols) %>%
-  transmute(id, key = sub("_", "-", year), rate = fafsa_completion_rate,
-            completed = fafsa_completed, grads = total_graduates) %>%
-  pivot_wider(names_from = key, values_from = c(rate, completed, grads), names_sep = "_")
+# ---- Profiles: latest year's TAPR snapshot per district --------------------
+rate_wide <- fafsa %>%
+  select(id, year, rate) %>%
+  pivot_wider(names_from = year, values_from = rate)
 
-districts <- raw %>%
-  select(id = district_id, name = NAME, county = county_name, type = community_type,
-         students = total_students, econ = stu_pct_economically_disadvantaged,
-         grad4 = F4_yr_longitudinal_graduation_rate_class_of_2022_district_exc) %>%
+long %>%
+  arrange(id, desc(year)) %>%
+  distinct(id, .keep_all = TRUE) %>%
+  left_join(transmute(rate_wide, id, rate_change_2223_to_2425 = `2024-2025` - `2022-2023`), by = "id") %>%
+  mutate(district_id = id) %>%
+  select(-id, -year, -district_name, -fafsa_completed, -total_graduates, -fafsa_completion_rate,
+         -any_of(c("district_num", "ObjectId", "esc_region_str"))) %>%
+  { list(cols = names(.), rows = .) } %>%
+  write_json("docs/data/profiles.json", dataframe = "values", auto_unbox = TRUE, digits = NA, na = "null")
+
+# ---- Map: ISD boundaries (charters have none) ------------------------------
+map_rates <- fafsa %>%
+  transmute(id, year, rate, completed, grads) %>%
+  pivot_wider(names_from = year, values_from = c(rate, completed, grads), names_sep = "_")
+
+districts <- read_esri("fafsa_districts_2026") %>%
+  mutate(community_type = na_if(trimws(community_type), "")) %>%
+  select(id = district_id, name = NAME, county = county_name, type = community_type) %>%
+  mutate(id = as.integer(id)) %>%
   left_join(map_rates, by = "id") %>%
   st_make_valid() %>%
   ms_simplify(keep = 0.04, keep_shapes = TRUE)
@@ -51,3 +67,10 @@ districts <- raw %>%
 unlink("docs/data/districts.geojson")
 st_write(districts, "docs/data/districts.geojson", quiet = TRUE,
          layer_options = c("COORDINATE_PRECISION=4", "RFC7946=YES"))
+
+# ---- Checks ------------------------------------------------------------------
+message("fafsa.json: ", nrow(fafsa), " rows; ", n_distinct(fafsa$id), " districts (",
+        n_distinct(fafsa$id[fafsa$sector == "Charter"]), " charters)")
+message("Map districts without long-table data: ", sum(!districts$id %in% fafsa$id))
+message("Long-table ISDs without a map shape: ",
+        n_distinct(setdiff(fafsa$id[fafsa$sector != "Charter"], districts$id)))
