@@ -3,3 +3,4 @@
 .RData
 .Ruserdata
 esri_download/*.geojson
+tiger_download/
