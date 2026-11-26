@@ -155,6 +155,25 @@
     .note ul { margin: 4px 0 0; padding-left: 18px; }
     #profile .print { float: right; margin: 2px 6px 0 0; font: inherit; font-size: 12px; padding: 2px 8px; border: 1px solid #3b758c; border-radius: 4px; background: #fff; color: #3b758c; cursor: pointer; }
     #profile .print:hover { background: #3b758c; color: #fff; }
+    #shareCard { grid-column: 1 / -1; padding: 14px 16px; border-top: 3px solid #3b758c; }
+    #shareCard .sub { font-size: 13px; color: #555; margin: -2px 0 12px; }
+    #shareCard .shareGrid { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
+    #shareCard .socials { display: flex; flex-wrap: wrap; gap: 14px; }
+    #shareCard .socials a, #shareCard .socials button { all: unset; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 62px; font-size: 12px; color: #444; cursor: pointer; text-align: center; }
+    #shareCard .socials svg { box-sizing: border-box; width: 46px; height: 46px; padding: 12px; border-radius: 50%; background: var(--c); color: #fff; fill: #fff; transition: transform .12s, box-shadow .12s; }
+    #shareCard .socials svg[fill="none"] { fill: none; }
+    #shareCard .socials a:hover svg, #shareCard .socials button:hover svg { transform: translateY(-2px); box-shadow: 0 3px 8px rgba(0,0,0,.25); }
+    #shareCard .socials a:focus-visible svg, #shareCard .socials button:focus-visible svg { outline: 3px solid #74a2b3; outline-offset: 2px; }
+    #shareCard .post label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    #shareCard .post small { font-weight: 400; color: #777; }
+    #shareCard textarea { box-sizing: border-box; width: 100%; padding: 7px 9px; font: inherit; font-size: 13px; line-height: 1.45; border: 1px solid #ccc; border-radius: 4px; resize: vertical; }
+    #shareCard #embedCode { font: 12px monospace; }
+    #shareCard .post button, #embedBox button { margin-top: 6px; font: inherit; font-size: 13px; padding: 4px 12px; border: 1px solid #3b758c; border-radius: 4px; background: #3b758c; color: #fff; cursor: pointer; }
+    #shareCard .post button:hover, #embedBox button:hover { background: #2d5d70; }
+    #embedBox { margin-top: 14px; padding-top: 10px; border-top: 1px solid #eee; font-size: 13px; }
+    #embedBox summary { cursor: pointer; font-weight: 600; color: #3b758c; }
+    #embedBox p { margin: 6px 0; color: #555; }
+    body.embed #shareCard { display: none; }
     /* ?embed=1: no page header or ArcGIS link, for iframes in blog posts */
     body.embed header, body.embed .link { display: none; }
     body.embed .wrap { padding-top: 0; }
@@ -162,7 +181,8 @@
       .wrap { grid-template-columns: 1fr; padding: 10px; }
       main { padding: 0; }
       .lower { grid-template-columns: 1fr; grid-template-rows: none; }
-      #tableCard, .note, #scatterCard, #fsaCard { grid-column: auto; grid-row: auto; }
+      #tableCard, .note, #scatterCard, #fsaCard, #shareCard { grid-column: auto; grid-row: auto; }
+      #shareCard .shareGrid { grid-template-columns: 1fr; }
       #fsaCard .stats { grid-template-columns: 1fr; }
     }
     @media print {
@@ -223,7 +243,28 @@
             <li>Federal Student Aid (FSA) counts are FAFSAs completed by first-time applicants 19 or younger who reported a public high school, summed to the district through the federal–TEA district ID match in the NCES directory. FSA publishes no graduate counts, so its counts aren’t turned into rates; its “est. rate” bins are FSA’s own estimates. A district is flagged when TEA’s 2024–25 completions are under half of FSA’s count for the same class (30+ in FSA).</li>
             <li>A school district counts as serving a Texas House or Senate district when their overlap is at least 5% of either one’s land area, or it is the school district’s largest overlap. One school district can serve several legislative districts. Charter districts have no boundaries and are not counted.</li>
           </ul></details>
-          <details id="embedBox"><summary>Embed this dashboard</summary><p>Paste this into a web page. It opens on the district selected now, if any.</p><textarea id="embedCode" readonly rows="2" style="width:100%;font:12px monospace"></textarea><button type="button" id="embedCopy">Copy</button></details></div>
+        </div>
+        <section class="card" id="shareCard" aria-labelledby="shareTitle">
+          <h2 id="shareTitle">Share these numbers</h2>
+          <p class="sub">Help more Texas students get to college. Post the tracker on social media. If you pick a district, the post and link point to that district.</p>
+          <div class="shareGrid">
+            <div class="socials">
+              <a data-s="x" target="_blank" rel="noopener" style="--c:#000" aria-label="Share on X"><svg viewBox="0 0 24 24"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.6l5.24 6.93Zm-1.29 19.5h2.04L6.49 3.24H4.3Z"/></svg><span>X</span></a>
+              <a data-s="bluesky" target="_blank" rel="noopener" style="--c:#1185fe" aria-label="Share on Bluesky"><svg viewBox="0 0 24 24"><path d="M12 10.8C10.91 8.69 7.95 4.75 5.2 2.8 2.57.94 1.56 1.27.9 1.57.14 1.91 0 3.08 0 3.77c0 .69.38 5.65.62 6.48.82 2.74 3.71 3.66 6.38 3.36-3.91.58-7.39 2-2.83 7.08 5.01 5.19 6.87-1.11 7.83-4.31.95 3.2 2.05 9.27 7.73 4.31 4.27-4.31 1.17-6.5-2.74-7.08 2.67.3 5.57-.62 6.38-3.36.25-.83.62-5.79.62-6.48 0-.69-.14-1.86-.9-2.2-.66-.3-1.66-.62-4.3 1.24C16.05 4.75 13.09 8.69 12 10.8Z"/></svg><span>Bluesky</span></a>
+              <a data-s="facebook" target="_blank" rel="noopener" style="--c:#0866ff" aria-label="Share on Facebook"><svg viewBox="0 0 24 24"><path d="M9.1 23.69v-7.98H6.63v-3.67H9.1v-1.58c0-4.09 1.85-5.98 5.86-5.98.4 0 .96.04 1.47.1.39.04.77.1 1.14.2v3.32a8.6 8.6 0 0 0-1.39-.05c-.7 0-1.26.1-1.67.31-.29.15-.52.36-.68.62-.26.42-.37 1-.37 1.75v1.3h3.92l-.67 3.67h-3.25v8.24C19.4 23.24 24 18.18 24 12.04 24 5.42 18.63.04 12 .04S0 5.42 0 12.04c0 5.63 3.87 10.35 9.1 11.65Z"/></svg><span>Facebook</span></a>
+              <a data-s="linkedin" target="_blank" rel="noopener" style="--c:#0a66c2" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13Zm1.78 13.02H3.56V9h3.56v11.45ZM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"/></svg><span>LinkedIn</span></a>
+              <a data-s="email" style="--c:#3b758c" aria-label="Share by email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m3 6 9 7 9-7"/></svg><span>Email</span></a>
+              <button type="button" id="shareLinkBtn" style="--c:#3b758c" aria-label="Copy link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg><span>Copy link</span></button>
+              <button type="button" id="shareNative" style="--c:#555" aria-label="More ways to share" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg><span>More…</span></button>
+            </div>
+            <div class="post">
+              <label for="postText">Suggested post <small>(edit before copying)</small></label>
+              <textarea id="postText" rows="4"></textarea>
+              <button type="button" id="postCopy">Copy post</button>
+            </div>
+          </div>
+          <details id="embedBox"><summary>Embed on a website or blog</summary><p>Paste this into a web page. It opens on the district selected now, if any.</p><textarea id="embedCode" readonly rows="2"></textarea><button type="button" id="embedCopy">Copy code</button></details>
+        </section>
       </div>
     </main>
   </div>
@@ -399,6 +440,7 @@
       addEventListener('popstate', () => { picked = idFromUrl(); profile(); markRow(); scatter(yearEl.value); zoomTo(picked); });
       initSearch();
       render();
+      shareLinks();
     });
 
     // The picked district lives in the URL (?district=<TEA id>) so any view can be bookmarked or shared
@@ -416,11 +458,35 @@
         facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
         email: `mailto:?subject=${encodeURIComponent("Every Texan FAFSA Completion Tracker")}&body=${encodeURIComponent(text + ": " + u.href)}` };
       document.querySelectorAll("#share a[data-s]").forEach(a => a.href = links[a.dataset.s]);
+      // Bottom share card: same networks, but the post text leads with the headline number
+      const post = postText(name), pt = encodeURIComponent(post);
+      const cardLinks = { ...links, x: `https://twitter.com/intent/tweet?text=${pt}&url=${url}`, bluesky: `https://bsky.app/intent/compose?text=${encodeURIComponent(post + " " + u.href)}`,
+        email: `mailto:?subject=${encodeURIComponent("Every Texan FAFSA Completion Tracker")}&body=${encodeURIComponent(post + "\n\n" + u.href)}` };
+      document.querySelectorAll("#shareCard a[data-s]").forEach(a => a.href = cardLinks[a.dataset.s]);
+      const ta = document.getElementById("postText");
+      if (!ta.dataset.edited) ta.value = post + " " + u.href;
       return u.href;
     }
-    document.getElementById("shareCopy").onclick = async () => { await navigator.clipboard.writeText(shareLinks()); const b = document.getElementById("shareCopy"); b.textContent = "Link copied"; setTimeout(() => b.textContent = "Copy link", 2000); };
-    document.getElementById("share").addEventListener("pointerdown", shareLinks);
-    document.getElementById("share").addEventListener("focusin", shareLinks);
+    // Ready-to-post caption with the current headline number: the picked district's rate, or the statewide rate
+    function postText(name) {
+      const y = yearEl.value; if (!y) return "How many Texas high school graduates complete the FAFSA? Look up any district with the Every Texan FAFSA Completion Tracker.";
+      const own = picked != null ? rows.find(r => r.id === picked && r.year === y) : null;
+      const tag = " #FAFSA #TxEd";
+      if (own?.rate != null) return `${pct(own.rate)} of ${name}’s ${short(y)} graduates completed the FAFSA, compared with ${pct(agg(rows.filter(r => r.year === y)).rate)} statewide. See how your district compares with the Every Texan FAFSA Completion Tracker.${tag}`;
+      const st = agg(rows.filter(r => r.year === y));
+      return `${pct(st.rate)} of Texas high school graduates completed the FAFSA in ${short(y)}. That left ${fmt(st.g - st.c)} graduates without one. Look up any district with the Every Texan FAFSA Completion Tracker.${tag}`;
+    }
+    function flash(b, msg) { const t = b.dataset.label ||= b.querySelector("span")?.textContent ?? b.textContent; (b.querySelector("span") || b).textContent = msg; setTimeout(() => (b.querySelector("span") || b).textContent = t, 2000); }
+    document.getElementById("shareCopy").onclick = async () => { await navigator.clipboard.writeText(shareLinks()); flash(document.getElementById("shareCopy"), "Link copied"); };
+    document.getElementById("shareLinkBtn").onclick = async () => { await navigator.clipboard.writeText(shareLinks()); flash(document.getElementById("shareLinkBtn"), "Copied!"); };
+    document.getElementById("postCopy").onclick = async () => { await navigator.clipboard.writeText(document.getElementById("postText").value); flash(document.getElementById("postCopy"), "Copied!"); };
+    document.getElementById("postText").addEventListener("input", e => e.target.dataset.edited = "1");
+    if (navigator.share) {
+      const nb = document.getElementById("shareNative"); nb.hidden = false;
+      nb.onclick = () => { const url = shareLinks(); navigator.share({ title: "Every Texan FAFSA Completion Tracker", text: postText(picked != null ? districts.find(d => d.id === picked)?.name : null), url }).catch(() => {}); };
+    }
+    ["share", "shareCard"].forEach(id => { document.getElementById(id).addEventListener("pointerdown", shareLinks); document.getElementById(id).addEventListener("focusin", shareLinks); });
+    yearEl.addEventListener("change", shareLinks);
 
     // Iframe snippet for the current address and district
     function embedSnippet() {
@@ -439,6 +505,7 @@
       const u = new URL(location.href);
       if (id == null) u.searchParams.delete('district'); else u.searchParams.set('district', id);
       if (u.href !== location.href) history.pushState(null, '', u);
+      delete document.getElementById("postText").dataset.edited;
       embedSnippet(); shareLinks();
     }
 
