@@ -4,13 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Every Texan FAFSA Completion Tracker</title>
+  <meta name="description" content="FAFSA completion rates for every Texas school district, from Every Texan." />
+  <meta property="og:title" content="Every Texan FAFSA Completion Tracker" />
+  <meta property="og:description" content="FAFSA completion rates for every Texas school district, from Every Texan." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif; color: #1a1a1a; background: #ececec; }
-    header { background: #fff; padding: 14px 16px; border-bottom: 1px solid #ddd; }
+    header { background: #fff; padding: 14px 16px; border-bottom: 1px solid #ddd; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+    #share { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+    #share span { color: #555; }
+    #share a, #share button { font: inherit; font-size: 13px; padding: 4px 10px; border: 1px solid #3b758c; border-radius: 999px; background: #fff; color: #3b758c; text-decoration: none; cursor: pointer; }
+    #share a:hover, #share button:hover, #share a:focus-visible, #share button:focus-visible { background: #3b758c; color: #fff; }
+    @media print { #share { display: none; } }
     h1 { margin: 0; font-size: 30px; font-weight: 400; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand img { height: 72px; width: auto; display: block; }
     h2 { margin: 0 0 8px; font-size: 18px; font-weight: 500; }
     .wrap { display: grid; grid-template-columns: 340px 1fr; gap: 10px; padding: 10px 0 10px 0; }
     aside { background: #fff; align-self: start; }
@@ -59,7 +71,7 @@
     .legend { position: absolute; top: 10px; right: 10px; background: #fff; padding: 8px 10px; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.2); z-index: 2; }
     .legend b { display: block; margin-bottom: 4px; }
     .legend i { display: inline-block; width: 14px; height: 12px; margin-right: 6px; vertical-align: -2px; border: 1px solid #bbb; }
-    .lower { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: 200px 200px auto; gap: 10px; }
+    .lower { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: 200px 200px auto auto auto; gap: 10px; }
     .kpi { display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; font-size: 19px; }
     .kpi .big { font-size: 78px; font-weight: 600; line-height: 1; }
     #kpiLow .big { color: #b3261e; }
@@ -67,7 +79,8 @@
     .chart text { font-size: 11px; fill: #444; }
     .key { font-size: 12px; color: #444; }
     .key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; }
-    #tableCard { grid-column: 3; grid-row: 1 / 4; display: flex; flex-direction: column; }
+    #tableCard { grid-column: 3; grid-row: 1 / 6; display: flex; flex-direction: column; }
+    #tableCard .scroll { max-height: 900px; }
     .scroll { overflow: auto; flex: 1; max-height: 560px; }
     table { width: 100%; border-collapse: collapse; font-size: 15px; }
     th { position: sticky; top: 0; background: #fff; font-weight: 600; padding: 10px 8px; border-bottom: 3px solid #ddd; text-align: left; }
@@ -120,21 +133,62 @@
     .search .msg.err { color: #b3261e; }
     .maplibregl-ctrl-group button.ctl svg { display: block; margin: auto; }
     #tip { position: fixed; pointer-events: none; background: #fff; border: 1px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,.2); padding: 6px 9px; font-size: 13px; line-height: 1.45; display: none; z-index: 10; max-width: 280px; }
+    #scatterCard, #fsaCard { grid-column: 1 / 3; }
+    #fsaCard .sub { font-size: 12px; color: #555; margin: -4px 0 10px; line-height: 1.5; }
+    #fsaCard .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    #fsaCard .stat { background: #f3f6f8; border-left: 3px solid #3b758c; padding: 8px 10px; }
+    #fsaCard .stat .lbl { font-size: 13px; color: #444; }
+    #fsaCard .stat .num { font-size: 34px; font-weight: 600; line-height: 1.15; }
+    #fsaCard .stat .vs { font-size: 13px; color: #444; }
+    .up { color: #2f6b1f; } .down { color: #b3261e; }
+    #profile .flag { margin: 6px 0 10px; padding: 7px 9px; background: #fdf1ee; border-left: 3px solid #b3261e; font-size: 12px; line-height: 1.45; }
+    #scatterCard .sub { font-size: 12px; color: #555; margin: -4px 0 6px; }
+    #scatter svg { width: 100%; display: block; }
+    #scatter text { font-size: 11px; fill: #444; }
+    #scatter circle { cursor: pointer; }
+    #tbody tr:focus-visible td { outline: 2px solid #3b758c; outline-offset: -2px; }
+    .legend .mode { margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+    .legend .mode select { margin: 0; }
+    .legend .hint { color: #777; max-width: 150px; }
+    .note details { margin-top: 6px; font-weight: 400; }
+    .note summary { cursor: pointer; font-weight: 600; }
+    .note ul { margin: 4px 0 0; padding-left: 18px; }
+    #profile .print { float: right; margin: 2px 6px 0 0; font: inherit; font-size: 12px; padding: 2px 8px; border: 1px solid #3b758c; border-radius: 4px; background: #fff; color: #3b758c; cursor: pointer; }
+    #profile .print:hover { background: #3b758c; color: #fff; }
+    /* ?embed=1: no page header or ArcGIS link, for iframes in blog posts */
+    body.embed header, body.embed .link { display: none; }
+    body.embed .wrap { padding-top: 0; }
     @media (max-width: 1100px) {
       .wrap { grid-template-columns: 1fr; padding: 10px; }
       main { padding: 0; }
       .lower { grid-template-columns: 1fr; grid-template-rows: none; }
-      #tableCard, .note { grid-column: auto; grid-row: auto; }
+      #tableCard, .note, #scatterCard, #fsaCard { grid-column: auto; grid-row: auto; }
+      #fsaCard .stats { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; }
+      .search, .filter, .maplibregl-ctrl, .tools button, #profile .close, #profile .print, #tip { display: none !important; }
+      .wrap { display: block; padding: 0; }
+      aside, main, .card { break-inside: avoid; }
+      .scroll { max-height: none; overflow: visible; }
+      .lower { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+      #tableCard { grid-column: 1 / 3; grid-row: auto; }
+      /* Printing one district: just the header and its profile, every section open */
+      body.print-district main { display: none; }
+      body.print-district aside { width: 100%; }
+      body.print-district #profile { font-size: 12px; }
     }
   </style>
 </head>
 <body>
-  <header><h1>Every Texan FAFSA Completion Tracker</h1></header>
+  <header><div class="brand"><a href="https://everytexan.org" target="_blank" rel="noopener"><img src="logo.png" alt="Every Texan" /></a><h1>Every Texan FAFSA Completion Tracker</h1></div>
+    <nav id="share" aria-label="Share this page"><span>Share:</span><a data-s="x" target="_blank" rel="noopener">X</a><a data-s="bluesky" target="_blank" rel="noopener">Bluesky</a><a data-s="facebook" target="_blank" rel="noopener">Facebook</a><a data-s="linkedin" target="_blank" rel="noopener">LinkedIn</a><a data-s="email">Email</a><button type="button" id="shareCopy">Copy link</button></nav></header>
   <div class="wrap">
     <aside>
       <div class="search"><label for="q"><span>Find a District or Address</span></label><input id="q" type="search" placeholder="District name, address, city, or ZIP…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qList" /><ul id="qList" role="listbox" hidden></ul><p class="msg" id="qMsg" hidden></p></div>
       <label class="filter"><span>County Name</span><select id="county"><option value="">No category selected</option></select></label>
       <label class="filter"><span>Texas House or Senate District</span><select id="leg"><option value="">All of Texas</option></select></label>
+      <label class="filter"><span>Education Service Center Region</span><select id="esc"><option value="">All regions</option></select></label>
       <label class="filter"><span>School Year</span><select id="year"></select></label>
       <label class="filter"><span>District Type</span><select id="sector"><option value="">All districts</option><option>Traditional ISD</option><option>Charter</option></select></label>
       <div id="profile"></div>
@@ -142,7 +196,7 @@
     <main>
       <section class="card" id="mapCard">
         <h2>FAFSA Completion &amp; Snapshot Data</h2>
-        <div style="position:relative"><div id="map"></div><div class="legend" id="legend"></div></div>
+        <div style="position:relative"><div id="map" role="region" aria-label="Map of Texas school districts colored by FAFSA completion. The district table below lists the same data."></div><div class="legend" id="legend"></div></div>
         <div class="link">Explore the full map here: <a href="https://arcg.is/001z0P" target="_blank" rel="noopener">https://arcg.is/001z0P</a></div>
       </section>
       <div class="lower">
@@ -156,14 +210,38 @@
         </div>
         <div class="card kpi" id="kpiLow"><div></div><div class="big" id="lowCount"></div><div id="lowLabel">districts below 50% completion</div></div>
         <div class="card chart"><h2 id="typeTitle"></h2><div id="typeChart"></div></div>
-        <div class="card note">Source: Texas Education Agency FAFSA completion reports (2022–23 through 2024–25) and Texas Academic Performance Reports; Texas House and Senate boundaries from U.S. Census Bureau TIGER/Line 2026. District counts under 10 are suppressed by TEA and shown as no data. Charter districts appear in charts and tables but not on the map, as they have no attendance boundaries. Updated July 2026. Contact: <a href="mailto:data@everytexan.org">data@everytexan.org</a></div>
+        <div class="card" id="scatterCard"><h2 id="scatterTitle"></h2><p class="sub">Each dot is a district in the table. Districts above the dashed trend line complete more FAFSAs than is typical for their share of economically disadvantaged students. Click a dot for details.</p><div id="scatter"></div></div>
+        <div class="card" id="fsaCard"><h2>Newer data from Federal Student Aid</h2><p class="sub" id="fsaSub"></p><div class="stats" id="fsaStats"></div></div>
+        <div class="card note">Source: Texas Education Agency FAFSA completion reports (2022–23 through 2024–25) and Texas Academic Performance Reports; Texas House and Senate boundaries from U.S. Census Bureau TIGER/Line 2026; classes of 2026 and 2027 from Federal Student Aid’s <a href="https://studentaid.gov/data-center/student/application-volume/fafsa-completion-high-school" target="_blank" rel="noopener">FAFSA Completion by High School</a> data. District counts under 10 are suppressed by TEA and shown as no data. Charter districts appear in charts and tables but not on the map, as they have no attendance boundaries. Updated July 2026. Contact: <a href="mailto:data@everytexan.org">data@everytexan.org</a>
+          <details><summary>How these numbers are calculated</summary><ul>
+            <li>Completion rate = FAFSAs completed ÷ graduates, added up across districts. District-years where TEA suppressed the completion count are left out of both.</li>
+            <li>“No FAFSA” = graduates − completions.</li>
+            <li>“Districts below 50%” counts districts with a rate under 50% and at least one completion. The district table also leaves out districts reporting zero completions, which are usually reporting gaps.</li>
+            <li>“Change” is the difference in completion rate, in percentage points, between 2022–23 and the selected school year.</li>
+            <li>“Similar districts” are those with the same TEA community type (all charters, for a charter district).</li>
+            <li>The trend line is a simple least-squares fit of completion rate on % economically disadvantaged across the districts in the table. % economically disadvantaged comes from each district’s latest Texas Academic Performance Report.</li>
+            <li>Federal Student Aid (FSA) counts are FAFSAs completed by first-time applicants 19 or younger who reported a public high school, summed to the district through the federal–TEA district ID match in the NCES directory. FSA publishes no graduate counts, so its counts aren’t turned into rates; its “est. rate” bins are FSA’s own estimates. A district is flagged when TEA’s 2024–25 completions are under half of FSA’s count for the same class (30+ in FSA).</li>
+            <li>A school district counts as serving a Texas House or Senate district when their overlap is at least 5% of either one’s land area, or it is the school district’s largest overlap. One school district can serve several legislative districts. Charter districts have no boundaries and are not counted.</li>
+          </ul></details>
+          <details id="embedBox"><summary>Embed this dashboard</summary><p>Paste this into a web page. It opens on the district selected now, if any.</p><textarea id="embedCode" readonly rows="2" style="width:100%;font:12px monospace"></textarea><button type="button" id="embedCopy">Copy</button></details></div>
       </div>
     </main>
   </div>
   <div id="tip"></div>
   <script>
-    const COLORS = ['#eee2cf', '#dbd0b9', '#74a2b3', '#3b758c'];
-    const NODATA = '#d9d9d9';
+    // One-hue teal ramp, light (low) to dark (high); validated for monotone lightness, visible steps and
+    // colorblind separation from the no-data gray
+    const COLORS = ['#8fb8c7', '#5f95a9', '#356f86', '#173f50'];
+    const NODATA = '#e4e4e4';
+    // Diverging ramp for change in points: red arm (losses), neutral gray midpoint, teal arm (gains)
+    const CHG_COLORS = ['#b8553a', '#e3a790', '#ececea', '#8fb8c7', '#2f6f86'];
+    const CHG_BREAKS = [-0.10, -0.03, 0.03, 0.10];
+    const ESC_NAMES = { 1: 'Edinburg', 2: 'Corpus Christi', 3: 'Victoria', 4: 'Houston', 5: 'Beaumont', 6: 'Huntsville', 7: 'Kilgore', 8: 'Mount Pleasant', 9: 'Wichita Falls', 10: 'Richardson',
+      11: 'Fort Worth', 12: 'Waco', 13: 'Austin', 14: 'Abilene', 15: 'San Angelo', 16: 'Amarillo', 17: 'Lubbock', 18: 'Midland', 19: 'El Paso', 20: 'San Antonio' };
+    const escOf = id => { const v = profiles[id]?.esc_region; return v == null ? null : +v; };
+    const econOf = id => { const v = profiles[id]?.stu_pct_economically_disadvantaged; return v == null || v === '' || v < 0 ? null : +v; };
+    const embed = new URLSearchParams(location.search).get('embed') === '1';
+    if (embed) document.body.classList.add('embed');
     const SECTOR_COLORS = { 'Traditional ISD': '#86b04a', 'Charter': '#4e6b1a' };
     const fmt = n => n == null ? '—' : Math.round(n).toLocaleString('en-US');
     const pct = r => r == null ? '—' : (r * 100).toFixed(1) + '%';
@@ -182,7 +260,8 @@
     const HINT = '<p class="hint">Click a district on the map or in the table to see its data. Charter districts have no boundaries, so they appear only in the table.</p>';
     const TEXAS = [-106.7, 25.8, -93.5, 36.5];
     let rows = [], years = [], bounds = {}, distBounds = {}, districts = [], geoData = null, map, picked = null, profiles = {};
-    let legMembers = {}, legOf = {}, legBounds = {}, legGeo = null, sortKey = 'rate', sortDir = 1;
+    let legMembers = {}, legOf = {}, legBounds = {}, escBounds = {}, legGeo = null, sortKey = 'rate', sortDir = 1, trend = null;
+    let fsa = {}, fsaMeta = null;
     const RACES = [['african_american', 'African American'], ['hispanic', 'Hispanic'], ['white', 'White'], ['american_indian', 'American Indian'], ['asian', 'Asian'], ['pacific_islander', 'Pacific Islander'], ['two_or_more_races', 'Two or more races']];
     const PROGRAMS = [['bilingual_esl_education', 'Bilingual/ESL'], ['career_and_technical_education', 'Career & technical'], ['special_education', 'Special education']];
     const SECTIONS = [
@@ -234,11 +313,25 @@
       return Math.round(v).toLocaleString('en-US');
     };
 
-    document.getElementById('legend').innerHTML = '<b>FAFSA completion rate</b>' +
-      ['0 – 25%', '> 25 – 50%', '> 50 – 75%', '> 75%'].map((l, i) => `<div><i style="background:${COLORS[i]}"></i>${l}</div>`).join('') +
-      `<div><i style="background:${NODATA}"></i>No data</div>` +
+    document.getElementById('legend').innerHTML =
+      '<label class="mode"><b>Color districts by</b><select id="mapMode"><option value="rate">Completion rate</option><option value="chg">Change since 2022–23</option></select></label>' +
+      '<div id="legKey"></div>' +
       '<label class="legShow">Show district lines<select id="legShow"><option value="">None</option><option value="house">Texas House</option><option value="senate">Texas Senate</option></select></label>';
-    const legShowEl = document.getElementById('legShow');
+    const legShowEl = document.getElementById('legShow'), mapModeEl = document.getElementById('mapMode'), escEl = document.getElementById('esc');
+
+    function drawLegend() {
+      const sw = (c, l) => `<div><i style="background:${c}"></i>${l}</div>`, nd = sw(NODATA, 'No data');
+      const el = document.getElementById('legKey');
+      mapModeEl.options[1].text = `Change since ${short(years[0] || '2022-2023')}`;
+      if (mapModeEl.value === 'rate') {
+        el.innerHTML = `<b>FAFSA completion rate, ${short(yearEl.value)}</b>` + ['0 – 25%', '> 25 – 50%', '> 50 – 75%', '> 75%'].map((l, i) => sw(COLORS[i], l)).join('') + nd;
+      } else if (yearEl.value === years[0]) {
+        el.innerHTML = `<p class="hint">Pick a school year after ${short(years[0])} to see change.</p>`;
+      } else {
+        el.innerHTML = `<b>Change, ${short(years[0])} to ${short(yearEl.value)}</b>` +
+          ['Down 10+ pts', 'Down 3 – 10 pts', 'Within 3 pts', 'Up 3 – 10 pts', 'Up 10+ pts'].map((l, i) => sw(CHG_COLORS[i], l)).join('') + nd;
+      }
+    }
 
     // Grow a [minX, minY, maxX, maxY] box to cover a GeoJSON geometry
     const growBounds = (bb, geom) => JSON.stringify(geom.coordinates).match(/-?\d+\.?\d*,-?\d+\.?\d*/g).forEach(p => {
@@ -246,8 +339,10 @@
       bb[0] = Math.min(bb[0], x); bb[1] = Math.min(bb[1], y); bb[2] = Math.max(bb[2], x); bb[3] = Math.max(bb[3], y);
     });
 
-    Promise.all(['data/fafsa.json', 'data/districts.geojson', 'data/profiles.json', 'data/legislative.json', 'data/legislative.geojson'].map(u => fetch(u).then(r => r.json()))).then(([data, geo, prof, legs, lgeo]) => {
+    Promise.all(['data/fafsa.json', 'data/districts.geojson', 'data/profiles.json', 'data/legislative.json', 'data/legislative.geojson', 'data/fsa.json'].map(u => fetch(u).then(r => r.json()))).then(([data, geo, prof, legs, lgeo, fs]) => {
       legGeo = lgeo;
+      fsaMeta = fs;
+      fs.rows.forEach(r => { const o = Object.fromEntries(fs.cols.map((c, i) => [c, r[i]])); fsa[o.id] = o; });
       for (const ch of ['house', 'senate']) {
         const nums = Object.keys(legs[ch]).map(Number).sort((a, b) => a - b), grp = document.createElement('optgroup');
         grp.label = LEG_NAMES[ch];
@@ -266,9 +361,14 @@
       yearEl.innerHTML = years.map(y => `<option>${y}</option>`).join('');
       yearEl.value = years[years.length - 1];
       [...new Set(rows.map(r => r.county).filter(Boolean))].sort().forEach(c => countyEl.add(new Option(c, c)));
+      [...new Set(Object.values(profiles).map(p => p.esc_region).filter(v => v != null))].map(Number).sort((a, b) => a - b)
+        .forEach(n => escEl.add(new Option(`Region ${n}${ESC_NAMES[n] ? ' – ' + ESC_NAMES[n] : ''}`, n)));
       geo.features.forEach(f => {
         growBounds(bounds[f.properties.county] ||= [180, 90, -180, -90], f.geometry);
         growBounds(distBounds[f.properties.id] ||= [180, 90, -180, -90], f.geometry);
+        const esc = escOf(f.properties.id);
+        f.properties.esc = esc;  // lets the map outline a region's districts
+        if (esc != null) growBounds(escBounds[esc] ||= [180, 90, -180, -90], f.geometry);
       });
       const seen = new Map();
       rows.forEach(r => seen.set(r.id, { id: r.id, name: r.name, county: r.county, sector: r.sector }));
@@ -276,9 +376,12 @@
       picked = idFromUrl();
       geoData = geo;
       initMap(geo);
-      countyEl.onchange = yearEl.onchange = sectorEl.onchange = legEl.onchange = bigEl.onchange = render;
+      countyEl.onchange = yearEl.onchange = sectorEl.onchange = legEl.onchange = escEl.onchange = bigEl.onchange = mapModeEl.onchange = render;
       legShowEl.onchange = showLegLines;
-      document.getElementById('tbody').onclick = e => { const tr = e.target.closest('tr[data-id]'); if (tr) pick(+tr.dataset.id); };
+      const tb = document.getElementById('tbody');
+      tb.onclick = e => { const tr = e.target.closest('tr[data-id]'); if (tr) pick(+tr.dataset.id); };
+      tb.onkeydown = e => { const tr = e.target.closest('tr[data-id]'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(+tr.dataset.id, true); } };
+      document.getElementById('scatter').onclick = e => { const c = e.target.closest('[data-id]'); if (c) pick(+c.dataset.id, true); };
       document.getElementById('thead').onclick = e => {
         const th = e.target.closest('th[data-k]'); if (!th) return;
         const k = th.dataset.k;
@@ -287,7 +390,7 @@
       };
       document.getElementById('csv').onclick = downloadCsv;
       addEventListener('resize', render);
-      addEventListener('popstate', () => { picked = idFromUrl(); profile(); markRow(); zoomTo(picked); });
+      addEventListener('popstate', () => { picked = idFromUrl(); profile(); markRow(); scatter(yearEl.value); zoomTo(picked); });
       initSearch();
       render();
     });
@@ -297,14 +400,40 @@
       const id = +new URLSearchParams(location.search).get('district');
       return id && rows.some(r => r.id === id) ? id : null;
     }
+    // Share links for the current view (no embed flag)
+    function shareLinks() {
+      const u = new URL(location.href); u.searchParams.delete("embed");
+      const name = picked != null ? districts.find(d => d.id === picked)?.name : null;
+      const text = name ? `How many ${name} graduates complete the FAFSA? See the Every Texan FAFSA Completion Tracker` : "How many Texas graduates complete the FAFSA? See the Every Texan FAFSA Completion Tracker";
+      const url = encodeURIComponent(u.href), t = encodeURIComponent(text);
+      const links = { x: `https://twitter.com/intent/tweet?text=${t}&url=${url}`, bluesky: `https://bsky.app/intent/compose?text=${encodeURIComponent(text + " " + u.href)}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+        email: `mailto:?subject=${encodeURIComponent("Every Texan FAFSA Completion Tracker")}&body=${encodeURIComponent(text + ": " + u.href)}` };
+      document.querySelectorAll("#share a[data-s]").forEach(a => a.href = links[a.dataset.s]);
+      return u.href;
+    }
+    document.getElementById("shareCopy").onclick = async () => { await navigator.clipboard.writeText(shareLinks()); const b = document.getElementById("shareCopy"); b.textContent = "Link copied"; setTimeout(() => b.textContent = "Copy link", 2000); };
+    document.getElementById("share").addEventListener("pointerdown", shareLinks);
+    document.getElementById("share").addEventListener("focusin", shareLinks);
+
+    // Iframe snippet for the current address and district
+    function embedSnippet() {
+      const u = new URL(location.origin + location.pathname); u.searchParams.set("embed", "1");
+      if (picked != null) u.searchParams.set("district", picked);
+      document.getElementById("embedCode").value = `<iframe src="${u}" width="100%" height="900" style="border:0" title="Every Texan FAFSA Completion Tracker"></iframe>`;
+    }
+    document.getElementById("embedCopy").onclick = () => { embedSnippet(); navigator.clipboard.writeText(document.getElementById("embedCode").value); document.getElementById("embedCopy").textContent = "Copied"; };
+    document.getElementById("embedBox").ontoggle = embedSnippet;
+
 
     function pick(id, zoom) {
       picked = id;
-      profile(); markRow();
+      profile(); markRow(); scatter(yearEl.value);
       if (zoom) zoomTo(id);
       const u = new URL(location.href);
       if (id == null) u.searchParams.delete('district'); else u.searchParams.set('district', id);
       if (u.href !== location.href) history.pushState(null, '', u);
+      embedSnippet(); shareLinks();
     }
 
     function zoomTo(id) {
@@ -314,7 +443,7 @@
     function goHome() { map.fitBounds(TEXAS, { padding: 20 }); }
 
     function resetAll() {
-      countyEl.value = ''; sectorEl.value = ''; legEl.value = ''; yearEl.value = years[years.length - 1];
+      countyEl.value = ''; sectorEl.value = ''; legEl.value = ''; escEl.value = ''; mapModeEl.value = 'rate'; yearEl.value = years[years.length - 1];
       document.getElementById('q').value = '';
       clearPlace();
       pick(null);
@@ -422,7 +551,8 @@
     }
 
     function initMap(geo) {
-      map = new maplibregl.Map({ container: 'map', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', bounds: TEXAS, fitBoundsOptions: { padding: 20 }, attributionControl: { compact: true } });
+      map = new maplibregl.Map({ container: 'map', style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', bounds: TEXAS, fitBoundsOptions: { padding: 20 }, attributionControl: { compact: true },
+        canvasContextAttributes: { preserveDrawingBuffer: true } });  // keeps the map visible when the page is printed
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
       map.addControl(new HomeResetControl(), 'top-left');
       map.on('load', () => {
@@ -442,7 +572,9 @@
           const p = e.features[0].properties, y = yearEl.value;
           map.getCanvas().style.cursor = 'pointer';
           map.setFilter('hover', ['==', ['get', 'id'], p.id]);
-          showTip(e.originalEvent, `<b>${p.name}</b><br>FAFSA completion, ${short(y)}: <b>${pct(p['rate_' + y])}</b><br><span style="color:#777">Click for details</span>`);
+          const r0 = p['rate_' + years[0]], r1 = p['rate_' + y];
+          const chg = y !== years[0] && r0 != null && r1 != null ? `<br>Change since ${short(years[0])}: <b>${r1 > r0 ? '+' : ''}${((r1 - r0) * 100).toFixed(1)} pts</b>` : '';
+          showTip(e.originalEvent, `<b>${p.name}</b><br>FAFSA completion, ${short(y)}: <b>${pct(r1)}</b>${chg}<br><span style="color:#777">Click for details</span>`);
         });
         map.on('mouseleave', 'fill', () => { map.getCanvas().style.cursor = ''; map.setFilter('hover', ['==', ['get', 'id'], -1]); hideTip(); });
         map.on('click', 'fill', e => pick(e.features[0].properties.id));
@@ -461,18 +593,25 @@
 
     function fillColor() {
       const k = ['get', 'rate_' + yearEl.value];
+      if (mapModeEl.value === 'chg') {
+        if (yearEl.value === years[0]) return NODATA;
+        const k0 = ['get', 'rate_' + years[0]];
+        return ['case', ['any', ['==', k, null], ['==', k0, null]], NODATA,
+          ['step', ['-', k, k0], CHG_COLORS[0], CHG_BREAKS[0], CHG_COLORS[1], CHG_BREAKS[1], CHG_COLORS[2], CHG_BREAKS[2], CHG_COLORS[3], CHG_BREAKS[3], CHG_COLORS[4]]];
+      }
       return ['case', ['==', k, null], NODATA, ['step', k, COLORS[0], 0.25, COLORS[1], 0.5, COLORS[2], 0.75, COLORS[3]]];
     }
 
     function render() {
-      const county = countyEl.value, year = yearEl.value, sector = sectorEl.value, leg = legEl.value, members = legMembers[leg];
-      const sel = rows.filter(r => (!county || r.county === county) && (!sector || r.sector === sector) && (!members || members.has(r.id)));
+      const county = countyEl.value, year = yearEl.value, sector = sectorEl.value, leg = legEl.value, members = legMembers[leg], esc = escEl.value ? +escEl.value : null;
+      const sel = rows.filter(r => (!county || r.county === county) && (!sector || r.sector === sector) && (!members || members.has(r.id)) && (esc == null || escOf(r.id) === esc));
       const yr = sel.filter(r => r.year === year);
       const { c, g, rate } = agg(yr);
+      drawLegend();
       document.getElementById('kpiOf').textContent = `${fmt(c)} of ${fmt(g)} graduates`;
       document.getElementById('kpiPct').textContent = pct(rate);
-      const where = [county && `${county} County`, leg && legName(leg)].filter(Boolean).join(', ');
-      document.getElementById('kpiWhere').textContent = 'completed a FAFSA ' + (leg ? `in school districts serving ${where}` : county ? `in ${where}` : 'statewide') +
+      const where = [county && `${county} County`, esc != null && `ESC Region ${esc}`, leg && legName(leg)].filter(Boolean).join(', ');
+      document.getElementById('kpiWhere').textContent = 'completed a FAFSA ' + (leg ? `in school districts serving ${where}` : where ? `in ${where}` : 'statewide') +
         (sector === 'Charter' ? ' (charters)' : sector ? ' (traditional ISDs)' : '');
       document.getElementById('kpiGap').textContent = g ? `${fmt(g - c)} graduates did not complete one` : '';
       document.getElementById('lowCount').textContent = yr.filter(r => r.rate != null && r.rate < 0.5 && r.completed > 0).length;
@@ -481,17 +620,21 @@
       yearChart(sel);
       typeChart(yr, year);
       table(yr, year);
+      scatter(year);
+      fsaCard(sel, county || sector || leg || esc != null);
       if (map && map.getLayer('fill')) {
         map.setPaintProperty('fill', 'fill-color', fillColor());
         const [ch, n] = leg ? leg.split(':') : ['', -1];
         map.setFilter('legsel', ['all', ['==', ['get', 'chamber'], ch], ['==', ['get', 'district'], +n]]);
-        map.setFilter('sel', !county && !members ? ['==', ['get', 'id'], -1] : ['all',
+        map.setFilter('sel', !county && !members && esc == null ? ['==', ['get', 'id'], -1] : ['all',
           county ? ['==', ['get', 'county'], county] : true,
+          esc != null ? ['==', ['get', 'esc'], esc] : true,
           members ? ['in', ['get', 'id'], ['literal', [...members]]] : true]);
-        const key = county + '|' + leg;
+        const key = county + '|' + leg + '|' + esc;
         if (key !== render.last) {
           if (leg && legBounds[leg]) map.fitBounds(legBounds[leg], { padding: 40, maxZoom: 10 });
           else if (county && bounds[county]) map.fitBounds(bounds[county], { padding: 40, maxZoom: 10 });
+          else if (esc != null && escBounds[esc]) map.fitBounds(escBounds[esc], { padding: 30, maxZoom: 10 });
           else if (render.last != null) map.fitBounds(TEXAS, { padding: 20 });
           render.last = key;
         }
@@ -522,7 +665,7 @@
       document.getElementById('thead').innerHTML = TCOLS.map(([key, label, , t]) =>
         `<th data-k="${key}" title="${t}" aria-sort="${key === k ? (d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button">${label}</button></th>`).join('');
       const chg = v => v == null ? '—' : (v > 0 ? '+' : '') + (v * 100).toFixed(1);
-      document.getElementById('tbody').innerHTML = tableRows.map(r => `<tr data-id="${r.id}"><td>${r.name}${r.sector === 'Charter' ? '<span class="tag">CHARTER</span>' : ''}<small>${r.county} County</small></td>` +
+      document.getElementById('tbody').innerHTML = tableRows.map(r => `<tr data-id="${r.id}" tabindex="0" aria-label="${r.name}: ${pct(r.rate)} completion. Press Enter for details."><td>${r.name}${r.sector === 'Charter' ? '<span class="tag">CHARTER</span>' : ''}<small>${r.county} County</small></td>` +
         `<td class="${r.rate < 0.4 ? 'low' : ''}">${pct(r.rate)}</td><td>${fmt(r.grads)}</td><td>${fmt(r.gap)}</td>` +
         `<td class="${r.chg > 0 ? 'up' : r.chg < 0 ? 'down' : ''}">${chg(r.chg)}</td></tr>`).join('')
         || '<tr><td colspan="5">No districts match.</td></tr>';
@@ -535,13 +678,15 @@
     function downloadCsv() {
       const year = yearEl.value, first = years[0];
       const cols = [['district_id', r => r.id], ['district', r => r.name], ['county', r => r.county], ['district_type', r => r.sector], ['community_type', r => r.type],
-        ['texas_house', r => (legOf[r.id]?.house || []).join(' ')], ['texas_senate', r => (legOf[r.id]?.senate || []).join(' ')],
+        ['texas_house', r => (legOf[r.id]?.house || []).join(' ')], ['texas_senate', r => (legOf[r.id]?.senate || []).join(' ')], ['esc_region', r => escOf(r.id)], ['pct_econ_disadvantaged', r => econOf(r.id)],
+        ['fsa_completed_class_2025', r => fsa[r.id]?.c25], ['fsa_completed_class_2026', r => fsa[r.id]?.c26], ['fsa_est_rate_class_2026', r => fsa[r.id]?.pct26],
+        ['fsa_completed_class_2027_so_far', r => fsa[r.id]?.c27], ['fsa_completed_class_2026_same_date', r => fsa[r.id]?.c27_prev],
         ['school_year', r => r.year], ['fafsa_completed', r => r.completed], ['total_graduates', r => r.grads], ['graduates_without_fafsa', r => r.gap],
         ['completion_rate_pct', r => r.rate == null ? null : (r.rate * 100).toFixed(1)], [`change_since_${first}_pts`, r => r.chg == null ? null : (r.chg * 100).toFixed(1)]];
       const cell = v => v == null ? '' : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
       const csv = [cols.map(c => c[0]).join(','), ...tableRows.map(r => cols.map(([, f]) => cell(f(r))).join(','))].join('\r\n');
       const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const name = ['fafsa-completion', year, countyEl.value && slug(countyEl.value) + '-county', legEl.value && slug(legName(legEl.value)), sectorEl.value && slug(sectorEl.value)].filter(Boolean).join('_') + '.csv';
+      const name = ['fafsa-completion', year, countyEl.value && slug(countyEl.value) + '-county', escEl.value && 'esc-region-' + escEl.value, legEl.value && slug(legName(legEl.value)), sectorEl.value && slug(sectorEl.value)].filter(Boolean).join('_') + '.csv';
       const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' })), download: name });
       a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }
@@ -603,11 +748,14 @@
         `<div class="lbl${isMe ? ' me' : ''}">${l}</div><div class="track">${v == null ? '' : `<span class="${isMe ? 'me' : ''}" style="width:${Math.min(100, v * 100)}%"></span>`}</div><div class="val">${pct(v)}</div>`).join('') + '</div>' +
         `<p class="cmpNote">${me?.rate == null ? 'No completion rate for this year (TEA suppresses counts under 10).'
           : `${diff(me.rate, refs[refs.length - 1][1])} the state` + (peerLabel ? ` and ${diff(me.rate, refs[2][1])} similar (${peerLabel.toLowerCase().replace(/ districts$/, '')}) districts.` : '.')}</p>`;
-      el.innerHTML = `<button class="close" title="Close" onclick="pick(null)">×</button><h3>${p.name}</h3>` +
+      const st = stateTrend(year), econ = econOf(picked);
+      const expNote = st && econ != null && me?.rate != null
+        ? `<p class="cmpNote">With ${econ}% of students economically disadvantaged, a typical Texas district would be near ${pct(st.at(econ))}. ${p.name} is ${diff(me.rate, st.at(econ))} that.</p>` : '';
+      el.innerHTML = `<button class="close" title="Close" aria-label="Close district profile" onclick="pick(null)">×</button><button class="print" type="button" onclick="printDistrict()" title="Print this district's profile or save it as a PDF">Print / PDF</button><h3>${p.name}</h3>` +
         `<div class="sub">${p.county} County · ${p.sector === 'Charter' ? 'Charter district' : p.type || '—'}</div>` + legs +
         `<table><thead><tr><th>FAFSA</th><th>Rate</th><th>Completed</th><th>Grads</th><th title="Graduates who did not complete a FAFSA">No FAFSA</th></tr></thead><tbody>` +
         years.map(y => `<tr class="${y === yearEl.value ? 'on' : ''}"><td>${short(y)}</td><td class="${p['rate_' + y] < 0.4 ? 'low' : ''}">${pct(p['rate_' + y])}</td><td>${fmt(p['completed_' + y])}</td><td>${fmt(p['grads_' + y])}</td><td>${fmt(gapOf(byYear[y] || {}))}</td></tr>`).join('') +
-        `</tbody></table><dl><dt>Change, 2022–23 to 2024–25</dt><dd>${chg == null ? '—' : (chg > 0 ? '+' : '') + (chg * 100).toFixed(1) + ' pts'}</dd></dl>` + cmp +
+        `</tbody></table><dl><dt>Change, 2022–23 to 2024–25</dt><dd>${chg == null ? '—' : (chg > 0 ? '+' : '') + (chg * 100).toFixed(1) + ' pts'}</dd></dl>` + cmp + expNote + fsaProfile(picked) +
         `<p class="src">District data below: <b>${taprLabel}</b>, the latest available. It does not change with the School Year filter.</p>` +
         yearLabels(SECTIONS.map(([title, body], i) => `<details${profile.open.has(i) ? ' open' : ''} data-t="${i}"><summary>${title}</summary>` +
           (body === 'staar' ? staar : body.map(([h, items, kind]) => (h ? `<h4>${h}</h4>` : '') + (kind === 'bars' ? bars(items) : kind === 'stack' ? stack(items) : dl(items))).join('')) + '</details>').join(''));
@@ -636,7 +784,7 @@
         });
         s += `<text x="${L + gw * i + gw / 2}" y="${H - 5}" text-anchor="middle">${y}</text>`;
       });
-      el.innerHTML = `<svg height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+      el.innerHTML = `<svg height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart of FAFSAs completed by school year: ${years.map((y, i) => y + ", " + sectors.map((sec, j) => sec + " " + fmt(vals[i][j])).join(" and ")).join("; ")}">${s}</svg>`;
       document.getElementById('yearKey').innerHTML = sectors.length > 1 ? sectors.map(sec => `<i style="background:${SECTOR_COLORS[sec]}"></i>${sec}`).join('') : '';
       bindTips(el);
     }
@@ -654,8 +802,103 @@
           `<text x="${L - 6}" y="${y + 10}" text-anchor="end">${d.k}</text><path d="${hBarPath(L, y + 1, sx(d.v) - L, row - 4)}" fill="#86b04a"/>` +
           `<text x="${sx(d.v) + 4}" y="${y + 10}">${d.v.toFixed(1)}</text></g>`;
       });
-      el.innerHTML = data.length ? `<svg height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>` : '<p class="key">No data for this selection.</p>';
+      el.innerHTML = data.length ? `<svg height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart of completion rate by community type: ${data.map(d => d.k + " " + d.v.toFixed(1) + "%").join(", ")}">${s}</svg>` : '<p class="key">No data for this selection.</p>';
       bindTips(el);
+    }
+
+    // Least-squares line of completion rate (0–1) on % economically disadvantaged (0–100)
+    function fitTrend(list) {
+      const pts = list.map(r => [econOf(r.id), r.rate]).filter(([x, y]) => x != null && y != null);
+      if (pts.length < 5) return null;
+      const n = pts.length, mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+      const sxx = pts.reduce((s, p) => s + (p[0] - mx) ** 2, 0), sxy = pts.reduce((s, p) => s + (p[0] - mx) * (p[1] - my), 0);
+      if (!sxx) return null;
+      const b = sxy / sxx;
+      return { a: my - b * mx, b, n, at: x => my - b * mx + b * x };
+    }
+
+    // Statewide trend for the profile's "compared with districts like it" sentence: same rules as the default table
+    // (30+ graduates, at least one completion), not affected by the sidebar filters
+    function stateTrend(year) {
+      const k = year + '|';
+      if (stateTrend.k !== k) { stateTrend.k = k; stateTrend.v = fitTrend(rows.filter(r => r.year === year && r.grads >= 30 && r.completed > 0)); }
+      return stateTrend.v;
+    }
+
+    function scatter(year) {
+      const el = document.getElementById('scatter');
+      document.getElementById('scatterTitle').textContent = `FAFSA completion vs. economically disadvantaged students, ${short(year)}`;
+      const pts = tableRows.map(r => ({ r, x: econOf(r.id), y: r.rate })).filter(p => p.x != null && p.y != null);
+      trend = fitTrend(tableRows);
+      if (!pts.length) { el.innerHTML = '<p class="key">No data for this selection.</p>'; return; }
+      const W = el.clientWidth, H = 300, L = 44, R = 12, T = 10, B = 34;
+      const sx = v => L + (W - L - R) * v / 100, sy = v => T + (H - T - B) * (1 - v);
+      let s = '';
+      for (let v = 0; v <= 1.0001; v += 0.25) s += `<line x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}" stroke="#e6e6e6"/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end">${v * 100}%</text>`;
+      for (let v = 0; v <= 100; v += 25) s += `<text x="${sx(v)}" y="${H - B + 16}" text-anchor="middle">${v}%</text>`;
+      s += `<text x="${(L + W - R) / 2}" y="${H - 3}" text-anchor="middle">Students who are economically disadvantaged (latest TAPR)</text>`;
+      s += `<text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Completion rate</text>`;
+      // Picked district drawn last so its ring sits on top
+      pts.sort((a, b) => (a.r.id === picked) - (b.r.id === picked));
+      pts.forEach(({ r, x, y }) => {
+        const me = r.id === picked, exp = trend ? trend.at(x) : null;
+        const tipHtml = `<b>${r.name}</b><br>${r.county} County<br>FAFSA completion: <b>${pct(y)}</b><br>Economically disadvantaged: ${x}%` +
+          (exp != null ? `<br>${Math.abs((y - exp) * 100).toFixed(1)} pts ${y >= exp ? 'above' : 'below'} the trend line` : '');
+        s += `<circle data-id="${r.id}" cx="${sx(x)}" cy="${sy(Math.min(1, y))}" r="${me ? 6 : 4}" fill="${r.sector === 'Charter' ? SECTOR_COLORS.Charter : '#3b758c'}" fill-opacity="${me ? 1 : 0.55}" stroke="${me ? '#b3261e' : '#fff'}" stroke-width="${me ? 2.5 : 1}" data-tip="${tipHtml.replace(/"/g, '&quot;')}"/>`;
+      });
+      if (trend) {
+        const y0 = trend.at(0), y1 = trend.at(100);
+        s += `<line x1="${sx(0)}" y1="${sy(y0)}" x2="${sx(100)}" y2="${sy(y1)}" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="6 4" pointer-events="none"/>` +
+          `<text x="${sx(100) - 4}" y="${sy(y1) - 6}" text-anchor="end" style="font-weight:600">trend</text>`;
+      }
+      const label = `Scatter plot of ${pts.length} districts: FAFSA completion rate against percent economically disadvantaged.` +
+        (trend ? ` Each 10 more points of economically disadvantaged students goes with ${Math.abs(trend.b * 1000).toFixed(1)} points ${trend.b < 0 ? 'lower' : 'higher'} completion on average.` : '');
+      el.innerHTML = `<svg height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">${s}</svg>` +
+        (pts.some(p => p.r.sector === 'Charter') && pts.some(p => p.r.sector !== 'Charter') ? `<div class="key"><i style="background:#3b758c"></i>Traditional ISD<i style="background:${SECTOR_COLORS.Charter}"></i>Charter</div>` : '');
+      bindTips(el);
+    }
+
+    // Print just the picked district's profile (every section opened), then put the page back
+    function printDistrict() {
+      const ds = [...document.querySelectorAll('#profile details')], was = ds.map(d => d.open);
+      ds.forEach(d => d.open = true);
+      document.body.classList.add('print-district');
+      const done = () => { document.body.classList.remove('print-district'); ds.forEach((d, i) => d.open = was[i]); removeEventListener('afterprint', done); };
+      addEventListener('afterprint', done);
+      print();
+    }
+
+    // Federal Student Aid: https://studentaid.gov/data-center/student/application-volume/fafsa-completion-high-school
+    const pctChange = (a, b) => a == null || !b ? '' : (() => { const v = (a - b) / b * 100; return `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '+' : ''}${v.toFixed(1)}%</span>`; })();
+    const asOfShort = s => s ? s.replace(/,\s*\d{4}$/, '') : '';
+
+    function fsaCard(sel, filtered) {
+      if (!fsaMeta) return;
+      const ids = filtered ? [...new Set(sel.map(r => r.id))] : Object.keys(fsa);
+      const list = ids.map(id => fsa[id]).filter(Boolean), tot = k => list.reduce((s, r) => s + (r[k] || 0), 0);
+      const c26 = tot('c26'), c25 = tot('c25'), c27 = tot('c27'), c27p = tot('c27_prev');
+      document.getElementById('fsaSub').innerHTML = `FAFSAs completed by seniors at ${filtered ? `the ${fmt(list.length)} public school districts in this selection` : 'Texas public high schools'}, processed through ${fsaMeta.as_of}. ` +
+        `These are counts, not rates: FSA does not publish graduate counts, and its numbers differ somewhat from TEA’s. Schools with fewer than 5 are suppressed.`;
+      document.getElementById('fsaStats').innerHTML =
+        `<div class="stat"><div class="lbl">Class of 2026 (2025–26 school year)</div><div class="num">${fmt(c26)}</div>` +
+        `<div class="vs">completed a FAFSA, ${pctChange(c26, c25)} vs. the class of 2025 (${fmt(c25)}) at the same point</div></div>` +
+        `<div class="stat"><div class="lbl">Class of 2027 (current seniors), so far</div><div class="num">${fmt(c27)}</div>` +
+        `<div class="vs">completed through ${asOfShort(fsaMeta.as_of)}, ${pctChange(c27, c27p)} vs. the class of 2026 (${fmt(c27p)}) by ${asOfShort(fsaMeta.prev_as_of)} last year</div></div>`;
+    }
+
+    // Flags TEA 2024–25 counts under half of FSA's for the same class
+    function fsaProfile(id) {
+      const f = fsa[id];
+      if (!f || !fsaMeta) return '';
+      const tea = rows.find(r => r.id === id && r.year === '2024-2025');
+      const bin = v => v && /\d/.test(v) ? v.replace(/-/, '–') + '%' : '—';
+      const flag = tea && tea.completed != null && f.c25 >= 30 && tea.completed < 0.5 * f.c25
+        ? `<p class="flag"><b>Check this district’s TEA data.</b> TEA reports ${fmt(tea.completed)} FAFSA completions for 2024–25, but Federal Student Aid counts ${fmt(f.c25)} for the same graduating class. The TEA figure, and the completion rate based on it, may be a reporting error.</p>` : '';
+      return `<h4>Federal Student Aid counts (through ${asOfShort(fsaMeta.as_of)} each year)</h4>` +
+        `<table><thead><tr><th>Class of</th><th>Completed</th><th title="FSA's estimated completion rate, in 5-point bins">FSA est. rate</th></tr></thead><tbody>` +
+        `<tr><td>2025</td><td>${fmt(f.c25)}</td><td>${bin(f.pct25)}</td></tr>` +
+        `<tr><td>2026</td><td>${fmt(f.c26)}</td><td>${bin(f.pct26)}</td></tr>` +
+        `<tr><td>2027 (so far)</td><td>${fmt(f.c27)}</td><td>${f.c27_prev ? 'vs. ' + fmt(f.c27_prev) + ' last year' : '—'}</td></tr></tbody></table>` + flag;
     }
 
     function niceStep(max) {

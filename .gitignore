@@ -4,3 +4,4 @@
 .Ruserdata
 esri_download/*.geojson
 tiger_download/
+fsa_download/

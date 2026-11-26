@@ -71,10 +71,7 @@ st_write(districts, "docs/data/districts.geojson", quiet = TRUE,
          layer_options = c("COORDINATE_PRECISION=4", "RFC7946=YES"))
 
 # ---- Texas House & Senate districts -----------------------------------------
-# Census TIGER/Line state legislative districts (downloaded once into tiger_download/).
-# A school district counts as serving a legislative district when their overlap is at
-# least LEG_MIN_SHARE of either one's area (or it is the school district's largest
-# overlap), so a school district can serve several and vice versa.
+# TIGER/Line districts; school district counts if overlap >= LEG_MIN_SHARE of either area
 tiger_year <- 2026
 LEG_MIN_SHARE <- 0.05
 tiger_dir <- "tiger_download"
@@ -124,7 +121,70 @@ unlink("docs/data/legislative.geojson")
 st_write(leg_map, "docs/data/legislative.geojson", quiet = TRUE,
          layer_options = c("COORDINATE_PRECISION=4", "RFC7946=YES"))
 
+# ---- FSA FAFSA completion by high school -----------------------------------
+# Source: https://studentaid.gov/data-center/student/application-volume/fafsa-completion-high-school
+library(readxl)
+fsa_dir <- "fsa_download"
+dir.create(fsa_dir, showWarnings = FALSE)
+fsa_xls <- file.path(fsa_dir, "TX.xls")
+if (!file.exists(fsa_xls)) {
+  download.file("https://studentaid.gov/sites/default/files/fsawg/datacenter/library/fafsabyhs/TX.xls",
+                fsa_xls, mode = "wb")
+}
+lea_json <- file.path(fsa_dir, "tx_lea_directory_2023.json")
+if (!file.exists(lea_json)) {
+  download.file("https://educationdata.urban.org/api/v1/school-districts/ccd/directory/2023/?fips=48",
+                lea_json, mode = "wb")
+}
+lea_xwalk <- fromJSON(lea_json)$results %>%
+  transmute(leaid = as.character(leaid), id = as.integer(sub("^TX-", "", state_leaid))) %>%
+  filter(!is.na(id))
+
+fsa_num <- function(x) suppressWarnings(as.numeric(gsub(",", "", x)))
+read_fsa <- function(sheet) {
+  hdr <- read_excel(fsa_xls, sheet = sheet, col_names = FALSE, n_max = 4, .name_repair = "unique_quiet")
+  d <- read_excel(fsa_xls, sheet = sheet, col_names = FALSE, skip = 4, col_types = "text", .name_repair = "unique_quiet")
+  list(hdr = hdr, d = d)
+}
+as_of <- function(hdr, col) trimws(gsub("\\s+", " ", sub("^Through ", "", hdr[[col]][3])))
+
+# Class of 2026 now, class of 2025 a year ago
+s_main <- read_fsa("TX School Level Data")
+stopifnot(grepl("2026 / 2027", s_main$hdr[[5]][2]), grepl("2025 / 2026", s_main$hdr[[7]][2]))
+schools <- s_main$d %>%
+  transmute(code = ...1, leaid = substr(...1, 1, 7), c26 = fsa_num(...6), c25 = fsa_num(...8))
+# Class of 2027 now, class of 2026 a year ago
+s_now <- read_fsa("TX 2027-28 Cycle")
+stopifnot(grepl("2027 / 2028", s_now$hdr[[5]][2]), grepl("2026 / 2027", s_now$hdr[[7]][2]))
+now <- s_now$d %>%
+  transmute(code = ...1, leaid = substr(...1, 1, 7), c27 = fsa_num(...6), c27_prev = fsa_num(...8))
+state_now <- filter(now, code == "--")
+s_dist <- read_fsa("TX District Level Data")
+dist_bins <- s_dist$d %>% transmute(leaid = ...1, pct26 = ...4, pct25 = ...5) %>% filter(grepl("^48", leaid))
+
+sum_na <- function(x) if (all(is.na(x))) NA_real_ else sum(x, na.rm = TRUE)
+fsa_dist <- full_join(
+  schools %>% filter(grepl("^48[0-9]{10}$", code)) %>%
+    group_by(leaid) %>% summarise(c26 = sum_na(c26), c25 = sum_na(c25), sup = sum(is.na(c26)), n_hs = n(), .groups = "drop"),
+  now %>% filter(grepl("^48[0-9]{10}$", code)) %>%
+    group_by(leaid) %>% summarise(c27 = sum_na(c27), c27_prev = sum_na(c27_prev), .groups = "drop"),
+  by = "leaid") %>%
+  full_join(dist_bins, by = "leaid") %>%
+  inner_join(lea_xwalk, by = "leaid")
+
+fsa_out <- list(
+  as_of = as_of(s_main$hdr, 5), prev_as_of = as_of(s_main$hdr, 7),
+  state = list(c27 = state_now$c27, c27_prev = state_now$c27_prev,
+               c26 = schools$c26[schools$code == "--"], c25 = schools$c25[schools$code == "--"]),
+  cols = c("id", "c25", "c26", "pct25", "pct26", "c27", "c27_prev", "n_hs", "sup"),
+  rows = fsa_dist %>% select(id, c25, c26, pct25, pct26, c27, c27_prev, n_hs, sup)
+)
+write_json(fsa_out, "docs/data/fsa.json", dataframe = "values", auto_unbox = TRUE, na = "null", digits = NA)
+
 # ---- Checks ------------------------------------------------------------------
+message("FSA (", fsa_out$as_of, "): ", nrow(fsa_dist), " districts matched to TEA IDs; ",
+        sum(!dist_bins$leaid %in% lea_xwalk$leaid), " FSA districts unmatched; ",
+        sum(!fsa_dist$id %in% fafsa$id), " matched but not in the TEA data")
 message("Legislative districts: ", length(leg_members$house), " House, ",
         length(leg_members$senate), " Senate (TIGER ", tiger_year, ")")
 message("fafsa.json: ", nrow(fafsa), " rows; ", n_distinct(fafsa$id), " districts (",
