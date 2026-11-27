@@ -167,12 +167,8 @@
     #shareCard .post label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
     #shareCard .post small { font-weight: 400; color: #777; }
     #shareCard textarea { box-sizing: border-box; width: 100%; padding: 7px 9px; font: inherit; font-size: 13px; line-height: 1.45; border: 1px solid #ccc; border-radius: 4px; resize: vertical; }
-    #shareCard #embedCode { font: 12px monospace; }
-    #shareCard .post button, #embedBox button { margin-top: 6px; font: inherit; font-size: 13px; padding: 4px 12px; border: 1px solid #3b758c; border-radius: 4px; background: #3b758c; color: #fff; cursor: pointer; }
-    #shareCard .post button:hover, #embedBox button:hover { background: #2d5d70; }
-    #embedBox { margin-top: 14px; padding-top: 10px; border-top: 1px solid #eee; font-size: 13px; }
-    #embedBox summary { cursor: pointer; font-weight: 600; color: #3b758c; }
-    #embedBox p { margin: 6px 0; color: #555; }
+    #shareCard .post button { margin-top: 6px; font: inherit; font-size: 13px; padding: 4px 12px; border: 1px solid #3b758c; border-radius: 4px; background: #3b758c; color: #fff; cursor: pointer; }
+    #shareCard .post button:hover { background: #2d5d70; }
     body.embed #shareCard { display: none; }
     /* ?embed=1: no page header or ArcGIS link, for iframes in blog posts */
     body.embed header, body.embed .link { display: none; }
@@ -263,7 +259,6 @@
               <button type="button" id="postCopy">Copy post</button>
             </div>
           </div>
-          <details id="embedBox"><summary>Embed on a website or blog</summary><p>Paste this into a web page. It opens on the district selected now, if any.</p><textarea id="embedCode" readonly rows="2"></textarea><button type="button" id="embedCopy">Copy code</button></details>
         </section>
       </div>
     </main>
@@ -488,15 +483,6 @@
     ["share", "shareCard"].forEach(id => { document.getElementById(id).addEventListener("pointerdown", shareLinks); document.getElementById(id).addEventListener("focusin", shareLinks); });
     yearEl.addEventListener("change", shareLinks);
 
-    // Iframe snippet for the current address and district
-    function embedSnippet() {
-      const u = new URL(location.origin + location.pathname); u.searchParams.set("embed", "1");
-      if (picked != null) u.searchParams.set("district", picked);
-      document.getElementById("embedCode").value = `<iframe src="${u}" width="100%" height="900" style="border:0" title="Every Texan FAFSA Completion Tracker"></iframe>`;
-    }
-    document.getElementById("embedCopy").onclick = () => { embedSnippet(); navigator.clipboard.writeText(document.getElementById("embedCode").value); document.getElementById("embedCopy").textContent = "Copied"; };
-    document.getElementById("embedBox").ontoggle = embedSnippet;
-
 
     function pick(id, zoom) {
       picked = id;
@@ -506,7 +492,7 @@
       if (id == null) u.searchParams.delete('district'); else u.searchParams.set('district', id);
       if (u.href !== location.href) history.pushState(null, '', u);
       delete document.getElementById("postText").dataset.edited;
-      embedSnippet(); shareLinks();
+      shareLinks();
     }
 
     function zoomTo(id) {
